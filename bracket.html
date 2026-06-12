@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>WM 2026 – Turnierplan</title>
+<style>
+:root{--bg:#0a0d14;--bg2:#111827;--card:#141c2d;--card2:#192338;--line:#2a3550;--text:#eef3ff;--muted:#a8b4cf;--gold:#f3b83b;--red:#ff5d73;--green:#49d28c;--blue:#67a4ff;--violet:#b38bff}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(160deg,var(--bg),var(--bg2) 60%);color:var(--text);min-height:100vh;padding:16px}
+h2{font-size:22px;font-weight:900;color:var(--gold);margin:0 0 4px}
+.bracket-info{font-size:12px;color:var(--muted);margin-bottom:20px}
+/* ROUND LABELS */
+.bracket-wrap{overflow-x:auto;padding-bottom:20px}
+.bracket{display:flex;gap:0;min-width:1100px}
+.round{display:flex;flex-direction:column;flex:1;min-width:160px}
+.round-label{text-align:center;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);padding:8px 4px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.matches{display:flex;flex-direction:column;flex:1;justify-content:space-around;gap:8px;padding:0 6px}
+/* MATCH SLOT */
+.bslot{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:12px;overflow:hidden;position:relative;transition:.2s;cursor:pointer}
+.bslot:hover{border-color:var(--blue);box-shadow:0 4px 20px rgba(103,164,255,.15)}
+.bslot.winner-decided{border-color:var(--gold)}
+.bslot.final-match{border-color:var(--gold);box-shadow:0 0 24px rgba(243,184,59,.25)}
+.bteam{display:flex;align-items:center;gap:8px;padding:7px 10px;font-size:12px;font-weight:700;transition:.15s}
+.bteam:first-child{border-bottom:1px solid var(--line)}
+.bteam.winner{background:rgba(73,210,140,.12);color:var(--green)}
+.bteam.loser{color:#556080}
+.bteam .bflag{font-size:16px;min-width:20px;text-align:center;font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif}
+.bteam .bname{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px}
+.bteam .bscore{font-family:monospace;font-size:13px;font-weight:900;color:var(--gold);min-width:24px;text-align:right}
+.bteam.winner .bscore{color:var(--green)}
+.bslot-label{font-size:9px;color:var(--muted);padding:3px 10px;background:rgba(255,255,255,.03);border-top:1px solid var(--line);text-align:center;letter-spacing:.06em;text-transform:uppercase}
+/* CHAMPION */
+.champion-box{margin-top:24px;text-align:center;padding:20px;background:linear-gradient(180deg,var(--card),var(--card2));border:2px solid var(--gold);border-radius:18px;box-shadow:0 0 40px rgba(243,184,59,.2)}
+.champion-label{font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.15em;font-weight:800;margin-bottom:8px}
+.champion-name{font-size:28px;font-weight:900}
+.champion-flag{font-size:40px;margin-bottom:6px;font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif}
+/* CONNECTOR LINES */
+.round:not(:last-child) .matches{border-right:none}
+/* MOBILE */
+@media(max-width:900px){
+  .bracket{min-width:900px}
+  .round{min-width:130px}
+  .bteam .bname{max-width:70px}
+}
+/* LEGEND */
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;font-size:11px;color:var(--muted)}
+.leg{display:flex;align-items:center;gap:6px}
+.leg-dot{width:10px;height:10px;border-radius:50%}
+</style>
+</head>
+<body>
+
+<h2>🗓️ Turnierplan – WM 2026</h2>
+<p class="bracket-info">Prognose-Bracket basierend auf KI-Gruppensieger-Analyse · Wird automatisch aktualisiert · <span style="color:var(--gold)">⚡ KI-Prognose</span></p>
+
+<div class="legend">
+  <div class="leg"><div class="leg-dot" style="background:var(--gold)"></div>Finaliste bestimmt</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--green)"></div>Sieger</div>
+  <div class="leg"><div class="leg-dot" style="background:#556080"></div>Ausgeschieden</div>
+</div>
+
+<div class="bracket-wrap">
+<div class="bracket" id="bracket"></div>
+</div>
+
+<div class="champion-box" id="champion-box" style="display:none">
+  <div class="champion-label">🏆 WM 2026 Weltmeister (Prognose)</div>
+  <div class="champion-flag" id="champ-flag"></div>
+  <div class="champion-name" id="champ-name"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// BRACKET DATA — basierend auf Gruppensieger-Prognosen
+// Gruppensieger (1.) vs Gruppenzweiter (2.) benachbarter Gruppen
+// WM 2026: 12 Gruppen → 32 Teams in K.-o.-Runde (24 Gruppensieger/Zweite + 8 Drittplatzierte)
+// Vereinfacht: 32er-Bracket mit prognostizierten Achtelfinal-Paarungen
+// ═══════════════════════════════════════════════
+
+const FLAGS = {
+  'Mexiko':'🇲🇽','Südkorea':'🇰🇷','Kanada':'🇨🇦','Schweiz':'🇨🇭',
+  'Brasilien':'🇧🇷','Marokko':'🇲🇦','USA':'🇺🇸','Türkei':'🇹🇷',
+  'Deutschland':'🇩🇪','Niederlande':'🇳🇱','Spanien':'🇪🇸','Uruguay':'🇺🇾',
+  'Belgien':'🇧🇪','Ägypten':'🇪🇬','Frankreich':'🇫🇷','Norwegen':'🇳🇴',
+  'Argentinien':'🇦🇷','Österreich':'🇦🇹','Portugal':'🇵🇹','Kolumbien':'🇨🇴',
+  'England':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Kroatien':'🇭🇷','Ghana':'🇬🇭','Japan':'🇯🇵',
+  'Schottland':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','Tschechien':'🇨🇿','Schweden':'🇸🇪','Iran':'🇮🇷',
+  'Australien':'🇦🇺','Senegal':'🇸🇳','Algerien':'🇩🇿','Ecuador':'🇪🇨',
+  'TBD':'❓'
+};
+
+function flag(name){ return FLAGS[name] || '🏳️'; }
+
+// Prognose: Gruppensieger laut KI-Analyse
+// Gruppe A: 1. Mexiko, 2. Südkorea
+// Gruppe B: 1. Schweiz, 2. Kanada
+// Gruppe C: 1. Brasilien, 2. Marokko
+// Gruppe D: 1. USA, 2. Türkei
+// Gruppe E: 1. Deutschland, 2. Ecuador
+// Gruppe F: 1. Niederlande, 2. Japan
+// Gruppe G: 1. Belgien, 2. Iran
+// Gruppe H: 1. Spanien, 2. Uruguay
+// Gruppe I: 1. Frankreich, 2. Norwegen
+// Gruppe J: 1. Argentinien, 2. Österreich
+// Gruppe K: 1. Portugal, 2. Kolumbien
+// Gruppe L: 1. England, 2. Ghana
+// Drittplatzierte (beste 8): Schottland, Tschechien, Schweden, Ägypten, Senegal, Algerien, Kroatien, Australien
+
+// WM 2026 offizielle Achtelfinal-Paarungen (vereinfacht/geschätzt):
+// AF1: 1A vs 2B → Mexiko vs Kanada
+// AF2: 1C vs 2D → Brasilien vs Türkei
+// AF3: 1E vs 2F → Deutschland vs Japan
+// AF4: 1G vs 2H → Belgien vs Uruguay
+// AF5: 1I vs 2J → Frankreich vs Österreich
+// AF6: 1K vs 2L → Portugal vs Ghana
+// AF7: 1B vs 2A → Schweiz vs Südkorea
+// AF8: 1D vs 2C → USA vs Marokko
+// + 8 Drittplatzierte in weiteren 8 Spielen → hier als "Drittpl." Bracket
+
+// Bracket: Runde der 16 (8 Spiele) → Viertelfinale (4) → Halbfinale (2) → Finale (1)
+// Für WM 2026 mit 32 K.o.-Teams: wir zeigen R16, VF, HF, F
+// Paarungen AF1-AF8 nach KI-Prognose:
+
+const r16 = [
+  // Linke Hälfte
+  {id:'r16-1', t1:'Mexiko',     s1:'2', t2:'Kanada',    s2:'1', winner:'Mexiko',     label:'AF 1'},
+  {id:'r16-2', t1:'Brasilien',  s1:'2', t2:'Türkei',    s2:'0', winner:'Brasilien',  label:'AF 2'},
+  {id:'r16-3', t1:'Deutschland',s1:'2', t2:'Japan',     s2:'1', winner:'Deutschland',label:'AF 3'},
+  {id:'r16-4', t1:'Belgien',    s1:'2', t2:'Uruguay',   s2:'1', winner:'Belgien',    label:'AF 4'},
+  // Rechte Hälfte
+  {id:'r16-5', t1:'Frankreich', s1:'2', t2:'Österreich',s2:'0', winner:'Frankreich', label:'AF 5'},
+  {id:'r16-6', t1:'Portugal',   s1:'3', t2:'Ghana',     s2:'1', winner:'Portugal',   label:'AF 6'},
+  {id:'r16-7', t1:'Schweiz',    s1:'2', t2:'Südkorea',  s2:'1', winner:'Schweiz',    label:'AF 7'},
+  {id:'r16-8', t1:'USA',        s1:'2', t2:'Marokko',   s2:'1', winner:'USA',        label:'AF 8'},
+];
+
+const qf = [
+  {id:'qf-1', t1:'Mexiko',    s1:'1', t2:'Brasilien',  s2:'2', winner:'Brasilien',  label:'VF 1'},
+  {id:'qf-2', t1:'Deutschland',s1:'2',t2:'Belgien',    s2:'1', winner:'Deutschland',label:'VF 2'},
+  {id:'qf-3', t1:'Frankreich',s1:'2', t2:'Portugal',   s2:'1', winner:'Frankreich', label:'VF 3'},
+  {id:'qf-4', t1:'Schweiz',   s1:'1', t2:'USA',        s2:'2', winner:'USA',        label:'VF 4'},
+];
+
+const sf = [
+  {id:'sf-1', t1:'Brasilien',  s1:'2', t2:'Deutschland',s2:'1', winner:'Brasilien',  label:'HF 1'},
+  {id:'sf-2', t1:'Frankreich', s1:'1', t2:'USA',        s2:'2', winner:'USA',        label:'HF 2'},
+];
+
+const final = [
+  {id:'final', t1:'Brasilien', s1:'3', t2:'USA', s2:'2', winner:'Brasilien', label:'FINALE'},
+];
+
+// ─── RENDER ───────────────────────────────────
+function makeSlot(match, isFinal=false){
+  const w = match.winner;
+  const t1win = w === match.t1;
+  const t2win = w === match.t2;
+  const decided = !!w;
+  return `
+  <div class="bslot ${decided?'winner-decided':''} ${isFinal?'final-match':''}" id="${match.id}">
+    <div class="bteam ${t1win?'winner':''} ${decided&&!t1win?'loser':''}">
+      <span class="bflag">${flag(match.t1)}</span>
+      <span class="bname">${match.t1||'TBD'}</span>
+      <span class="bscore">${match.s1!==undefined?match.s1:''}</span>
+    </div>
+    <div class="bteam ${t2win?'winner':''} ${decided&&!t2win?'loser':''}">
+      <span class="bflag">${flag(match.t2)}</span>
+      <span class="bname">${match.t2||'TBD'}</span>
+      <span class="bscore">${match.s2!==undefined?match.s2:''}</span>
+    </div>
+    <div class="bslot-label">⚡ ${match.label}</div>
+  </div>`;
+}
+
+function renderBracket(){
+  const b = document.getElementById('bracket');
+  b.innerHTML = `
+  <div class="round">
+    <div class="round-label">Runde der 16</div>
+    <div class="matches">
+      ${r16.map(m=>makeSlot(m)).join('')}
+    </div>
+  </div>
+  <div class="round">
+    <div class="round-label">Viertelfinale</div>
+    <div class="matches">
+      ${qf.map(m=>makeSlot(m)).join('')}
+    </div>
+  </div>
+  <div class="round">
+    <div class="round-label">Halbfinale</div>
+    <div class="matches">
+      ${sf.map(m=>makeSlot(m)).join('')}
+    </div>
+  </div>
+  <div class="round">
+    <div class="round-label">🏆 Finale</div>
+    <div class="matches">
+      ${final.map(m=>makeSlot(m,true)).join('')}
+    </div>
+  </div>`;
+
+  // Show champion
+  const champ = final[0].winner;
+  if(champ && champ !== 'TBD'){
+    document.getElementById('champion-box').style.display='block';
+    document.getElementById('champ-flag').textContent = flag(champ);
+    document.getElementById('champ-name').textContent = champ;
+  }
+}
+
+renderBracket();
+</script>
+</body>
+</html>
