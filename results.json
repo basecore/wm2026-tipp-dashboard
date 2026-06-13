@@ -22,5 +22,11 @@
     "home": 1,
     "away": 1,
     "status": "finished"
+  },
+  {
+    "teams": "usa paraguay",
+    "home": 4,
+    "away": 1,
+    "status": "finished"
   }
 ]
