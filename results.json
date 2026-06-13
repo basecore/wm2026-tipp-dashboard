@@ -31,8 +31,8 @@
   },
   {
     "teams": "katar schweiz",
-    "home": 0,
+    "home": 1,
     "away": 1,
-    "status": "live"
+    "status": "finished"
   }
 ]
