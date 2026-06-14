@@ -52,5 +52,11 @@
     "home": 2,
     "away": 0,
     "status": "finished"
+  },
+  {
+    "teams": "deutschland curaçao",
+    "home": 3,
+    "away": 1,
+    "status": "live"
   }
 ]
