@@ -75,6 +75,12 @@
     "teams": "spanien cape verde islands",
     "home": 0,
     "away": 0,
+    "status": "finished"
+  },
+  {
+    "teams": "belgien ägypten",
+    "home": 1,
+    "away": 1,
     "status": "live"
   }
 ]
