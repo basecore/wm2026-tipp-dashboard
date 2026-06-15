@@ -10,5 +10,71 @@
     "home": 2,
     "away": 1,
     "status": "finished"
+  },
+  {
+    "teams": "south korea tschechien",
+    "home": 2,
+    "away": 1,
+    "status": "finished"
+  },
+  {
+    "teams": "kanada bosnia-herzegovina",
+    "home": 1,
+    "away": 1,
+    "status": "finished"
+  },
+  {
+    "teams": "usa paraguay",
+    "home": 4,
+    "away": 1,
+    "status": "finished"
+  },
+  {
+    "teams": "katar schweiz",
+    "home": 1,
+    "away": 1,
+    "status": "finished"
+  },
+  {
+    "teams": "brasilien marokko",
+    "home": 1,
+    "away": 1,
+    "status": "finished"
+  },
+  {
+    "teams": "haiti schottland",
+    "home": 0,
+    "away": 1,
+    "status": "finished"
+  },
+  {
+    "teams": "australien türkei",
+    "home": 2,
+    "away": 0,
+    "status": "finished"
+  },
+  {
+    "teams": "deutschland curaçao",
+    "home": 7,
+    "away": 1,
+    "status": "finished"
+  },
+  {
+    "teams": "niederlande japan",
+    "home": 2,
+    "away": 2,
+    "status": "finished"
+  },
+  {
+    "teams": "ivory coast ecuador",
+    "home": 1,
+    "away": 0,
+    "status": "finished"
+  },
+  {
+    "teams": "schweden tunesien",
+    "home": 5,
+    "away": 1,
+    "status": "finished"
   }
 ]
