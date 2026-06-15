@@ -57,6 +57,7 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
 .legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;justify-content:center}
 .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
 .legend-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.src-badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;background:rgba(73,210,140,.12);color:var(--green);border:1px solid rgba(73,210,140,.25);margin-bottom:14px}
 .footer{margin-top:30px;padding:16px 0 10px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
 .footer a{color:var(--blue);text-decoration:none;font-weight:700}
 @media(max-width:720px){
@@ -73,33 +74,35 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
   <div class="hero">
     <div class="kicker">📈 WM 2026 · Prognose-Auswertung</div>
     <h1 class="title">Statistiken &<br>Trefferquoten</h1>
-    <p class="sub">Exact-Score, Tendenz, Torverhältnis, Over/Under, BTTS — alle Werte direkt sichtbar, kein Hover nötig.</p>
+    <p class="sub">Exact-Score, Tendenz, Torverhältnis, Over/Under, BTTS — Ergebnisse direkt aus <strong>results.json</strong>, alle Werte ohne Hover sichtbar.</p>
     <a class="back-btn" href="index.html">← Zurück zum Spielplan</a>
   </div>
+
+  <div id="srcBadge" class="src-badge">⏳ Lade results.json…</div>
 
   <!-- KPIs -->
   <div class="kpi-grid" id="kpiGrid">
     <div class="kpi"><div class="kpi-val" id="kpiTotal" style="color:var(--blue)">—</div><div class="kpi-label">Ausgewertet</div><div class="kpi-sub">von 72 Spielen</div></div>
     <div class="kpi"><div class="kpi-val" id="kpiExact" style="color:var(--green)">—</div><div class="kpi-label">Exact Score ✓</div><div class="kpi-sub">Prognose = Ergebnis</div></div>
     <div class="kpi"><div class="kpi-val" id="kpiTendency" style="color:var(--lightgreen)">—</div><div class="kpi-label">Tendenz ✓</div><div class="kpi-sub">Richtiger Sieger</div></div>
-    <div class="kpi"><div class="kpi-val" id="kpiRatio" style="color:var(--blue)">—</div><div class="kpi-label">Torverhältnis ✓</div><div class="kpi-sub">Mehr/Weniger/Gleich korrekt</div></div>
+    <div class="kpi"><div class="kpi-val" id="kpiRatio" style="color:var(--blue)">—</div><div class="kpi-label">Torverhältnis ✓</div><div class="kpi-sub">Mehr/Weniger/Gleich</div></div>
     <div class="kpi"><div class="kpi-val" id="kpiWrong" style="color:var(--red)">—</div><div class="kpi-label">Falsch ✗</div><div class="kpi-sub">Falsche Tendenz</div></div>
     <div class="kpi"><div class="kpi-val" id="kpiOver" style="color:var(--violet)">—</div><div class="kpi-label">Over/Under ✓</div><div class="kpi-sub">2.5-Tore korrekt</div></div>
     <div class="kpi"><div class="kpi-val" id="kpiBtts" style="color:var(--gold)">—</div><div class="kpi-label">BTTS ✓</div><div class="kpi-sub">Beide treffen</div></div>
   </div>
 
-  <!-- ERGEBNIS EINTRAGEN -->
+  <!-- ERGEBNIS MANUELL NACHTRAGEN -->
   <div class="entry-section">
-    <h3>⚽ Spiel-Ergebnis eintragen</h3>
+    <h3>⚽ Ergebnis manuell nachtragen <span style="font-size:11px;color:var(--muted);font-weight:400">(überschreibt results.json für diese Session)</span></h3>
     <div class="entry-grid">
       <div class="entry-row"><label>Spiel auswählen</label><select id="matchSelect"></select></div>
       <div class="entry-row"><label>Tatsächliches Ergebnis (z.B. 2:1)</label><input type="text" id="actualScore" placeholder="z.B. 1:0, 2:2, 0:3"></div>
     </div>
     <button class="btn-save" onclick="saveResult()">💾 Speichern</button>
-    <button class="btn-clear" onclick="clearAll()">🗑 Alle löschen</button>
+    <button class="btn-clear" onclick="clearOverrides()">🗑 Manuelle Einträge löschen</button>
   </div>
 
-  <!-- CHARTS ROW 1 -->
+  <!-- CHARTS -->
   <div class="sec-title">📊 Prognose-Genauigkeit</div>
   <div class="chart-grid">
     <div class="chart-card">
@@ -127,7 +130,6 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
     </div>
   </div>
 
-  <!-- CHARTS ROW 2 -->
   <div class="sec-title">🔍 Confidence & Gruppen-Analyse</div>
   <div class="chart-grid">
     <div class="chart-card">
@@ -145,7 +147,6 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
     </div>
   </div>
 
-  <!-- CHARTS ROW 3 -->
   <div class="sec-title">📅 Zeitlicher Verlauf</div>
   <div class="chart-grid">
     <div class="chart-card full">
@@ -162,7 +163,7 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
     <button class="fbtn" onclick="filterTable('exact',this)">✅ Exact</button>
     <button class="fbtn" onclick="filterTable('tendency',this)">🟢 Tendenz</button>
     <button class="fbtn" onclick="filterTable('wrong',this)">❌ Falsch</button>
-    <button class="fbtn" onclick="filterTable('ratio_only',this)">⚖️ Nur Torverhältnis ✓</button>
+    <button class="fbtn" onclick="filterTable('ratio_only',this)">⚖️ Nur Torverh. ✓</button>
     <button class="fbtn" onclick="filterTable('pending',this)">⏳ Ausstehend</button>
   </div>
   <div style="overflow-x:auto">
@@ -170,14 +171,14 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
       <thead><tr>
         <th>#</th><th>Datum</th><th>Gr.</th><th>Spiel</th>
         <th>Prognose</th><th>Ergebnis</th><th>Status</th>
-        <th>Tendenz</th><th>Torverhältnis</th><th>Over 2.5</th><th>BTTS</th><th>Conf.</th>
+        <th>Tendenz</th><th>Torverh.</th><th>Over 2.5</th><th>BTTS</th><th>Conf.</th>
       </tr></thead>
       <tbody id="resultBody"></tbody>
     </table>
   </div>
 
   <div class="footer">
-    <span>WM 2026 Prognose-Dashboard · KI-gestützt · <span style="color:var(--gold)">v3.3</span></span>
+    <span>WM 2026 Prognose-Dashboard · KI-gestützt · <span style="color:var(--gold)">v3.4</span></span>
     <a href="index.html">← Zum Spielplan</a>
   </div>
 </div>
@@ -186,59 +187,98 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
 Chart.register(ChartDataLabels);
 
 const MATCHES = [
-  {id:1,  gr:"A", date:"11.06", home:"Mexiko 🇲🇽",       away:"Südafrika 🇿🇦",          pred:"2:0", over:54.9, btts:55.9, conf:"Sehr hoch"},
-  {id:2,  gr:"A", date:"12.06", home:"Südkorea 🇰🇷",      away:"Tschechien 🇨🇿",          pred:"1:1", over:65.8, btts:66.0, conf:"Hoch"},
-  {id:3,  gr:"B", date:"12.06", home:"Kanada 🇨🇦",        away:"Bosnien-Herzegowina 🇧🇦",  pred:"2:1", over:52.5, btts:56.2, conf:"Mittel"},
-  {id:4,  gr:"D", date:"13.06", home:"USA 🇺🇸",           away:"Paraguay 🇵🇾",             pred:"2:0", over:62.3, btts:62.6, conf:"Sehr hoch"},
-  {id:5,  gr:"B", date:"13.06", home:"Katar 🇶🇦",         away:"Schweiz 🇨🇭",              pred:"0:2", over:59.0, btts:60.2, conf:"Sehr hoch"},
-  {id:6,  gr:"C", date:"14.06", home:"Brasilien 🇧🇷",     away:"Marokko 🇲🇦",              pred:"2:1", over:72.0, btts:71.3, conf:"Mittel"},
-  {id:7,  gr:"C", date:"14.06", home:"Haiti 🇭🇹",         away:"Schottland 🏴",            pred:"0:2", over:47.0, btts:50.3, conf:"Sehr hoch"},
-  {id:8,  gr:"D", date:"14.06", home:"Australien 🇦🇺",    away:"Türkei 🇹🇷",               pred:"1:1", over:64.7, btts:65.7, conf:"Niedrig"},
-  {id:9,  gr:"E", date:"14.06", home:"Deutschland 🇩🇪",   away:"Curaçao 🇨🇼",              pred:"4:0", over:48.2, btts:49.6, conf:"Sehr hoch"},
-  {id:10, gr:"F", date:"14.06", home:"Niederlande 🇳🇱",   away:"Japan 🇯🇵",                pred:"2:1", over:64.9, btts:65.8, conf:"Mittel"},
-  {id:11, gr:"E", date:"15.06", home:"Elfenbeinküste 🇨🇮", away:"Ecuador 🇪🇨",             pred:"1:1", over:54.6, btts:57.9, conf:"Niedrig"},
-  {id:12, gr:"F", date:"15.06", home:"Schweden 🇸🇪",      away:"Tunesien 🇹🇳",             pred:"2:0", over:62.9, btts:64.3, conf:"Mittel"},
-  {id:13, gr:"H", date:"15.06", home:"Spanien 🇪🇸",       away:"Kap Verde 🇨🇻",            pred:"3:0", over:59.0, btts:57.2, conf:"Sehr hoch"},
-  {id:14, gr:"G", date:"15.06", home:"Belgien 🇧🇪",       away:"Ägypten 🇪🇬",              pred:"2:0", over:67.6, btts:67.5, conf:"Hoch"},
-  {id:15, gr:"H", date:"16.06", home:"Saudi-Arabien 🇸🇦", away:"Uruguay 🇺🇾",              pred:"0:2", over:53.4, btts:56.0, conf:"Sehr hoch"},
-  {id:16, gr:"G", date:"16.06", home:"Iran 🇮🇷",          away:"Neuseeland 🇳🇿",           pred:"2:0", over:48.4, btts:48.1, conf:"Sehr hoch"},
-  {id:17, gr:"I", date:"16.06", home:"Frankreich 🇫🇷",    away:"Senegal 🇸🇳",              pred:"2:1", over:71.2, btts:70.6, conf:"Hoch"},
-  {id:18, gr:"I", date:"17.06", home:"Irak 🇮🇶",          away:"Norwegen 🇳🇴",             pred:"0:2", over:54.7, btts:56.5, conf:"Sehr hoch"},
-  {id:19, gr:"J", date:"17.06", home:"Argentinien 🇦🇷",   away:"Algerien 🇩🇿",             pred:"2:0", over:62.5, btts:63.5, conf:"Sehr hoch"},
-  {id:20, gr:"J", date:"17.06", home:"Österreich 🇦🇹",    away:"Jordanien 🇯🇴",            pred:"2:1", over:49.5, btts:50.7, conf:"Sehr hoch"},
-  {id:21, gr:"K", date:"17.06", home:"Portugal 🇵🇹",      away:"DR Kongo 🇨🇩",             pred:"3:0", over:54.3, btts:55.8, conf:"Sehr hoch"},
-  {id:22, gr:"L", date:"17.06", home:"England 🏴",        away:"Kroatien 🇭🇷",             pred:"1:1", over:66.6, btts:67.2, conf:"Niedrig"},
-  {id:23, gr:"L", date:"18.06", home:"Ghana 🇬🇭",         away:"Panama 🇵🇦",               pred:"2:1", over:49.8, btts:53.4, conf:"Hoch"},
-  {id:24, gr:"K", date:"18.06", home:"Usbekistan 🇺🇿",    away:"Kolumbien 🇨🇴",            pred:"1:2", over:58.0, btts:57.5, conf:"Sehr hoch"},
-  {id:25, gr:"A", date:"18.06", home:"Tschechien 🇨🇿",    away:"Südafrika 🇿🇦",            pred:"2:0", over:52.4, btts:55.9, conf:"Hoch"},
-  {id:26, gr:"B", date:"18.06", home:"Schweiz 🇨🇭",       away:"Bosnien-Herzegowina 🇧🇦",  pred:"2:0", over:59.8, btts:61.0, conf:"Sehr hoch"},
-  {id:27, gr:"B", date:"19.06", home:"Kanada 🇨🇦",        away:"Katar 🇶🇦",               pred:"2:0", over:51.5, btts:55.4, conf:"Mittel"},
-  {id:28, gr:"A", date:"19.06", home:"Mexiko 🇲🇽",        away:"Südkorea 🇰🇷",             pred:"1:1", over:64.1, btts:65.1, conf:"Niedrig"},
-  {id:29, gr:"D", date:"19.06", home:"USA 🇺🇸",           away:"Australien 🇦🇺",           pred:"2:1", over:68.9, btts:68.9, conf:"Mittel"},
-  {id:30, gr:"C", date:"20.06", home:"Schottland 🏴",     away:"Marokko 🇲🇦",              pred:"1:1", over:64.9, btts:65.5, conf:"Hoch"},
-  {id:31, gr:"C", date:"20.06", home:"Brasilien 🇧🇷",     away:"Haiti 🇭🇹",                pred:"4:0", over:49.9, btts:49.9, conf:"Sehr hoch"},
-  {id:32, gr:"D", date:"20.06", home:"Türkei 🇹🇷",        away:"Paraguay 🇵🇾",             pred:"1:1", over:57.5, btts:59.8, conf:"Hoch"},
-  {id:33, gr:"F", date:"20.06", home:"Niederlande 🇳🇱",   away:"Schweden 🇸🇪",             pred:"2:1", over:69.5, btts:69.3, conf:"Hoch"},
-  {id:34, gr:"E", date:"20.06", home:"Deutschland 🇩🇪",   away:"Elfenbeinküste 🇨🇮",       pred:"2:0", over:62.7, btts:63.3, conf:"Sehr hoch"},
-  {id:35, gr:"E", date:"21.06", home:"Ecuador 🇪🇨",       away:"Curaçao 🇨🇼",              pred:"2:0", over:45.8, btts:49.8, conf:"Sehr hoch"},
-  {id:36, gr:"F", date:"21.06", home:"Tunesien 🇹🇳",      away:"Japan 🇯🇵",                pred:"1:1", over:58.1, btts:60.5, conf:"Hoch"},
-  {id:37, gr:"H", date:"21.06", home:"Spanien 🇪🇸",       away:"Saudi-Arabien 🇸🇦",        pred:"3:0", over:64.0, btts:63.3, conf:"Sehr hoch"},
-  {id:38, gr:"G", date:"21.06", home:"Belgien 🇧🇪",       away:"Iran 🇮🇷",                 pred:"2:1", over:70.2, btts:69.9, conf:"Mittel"},
-  {id:39, gr:"H", date:"22.06", home:"Uruguay 🇺🇾",       away:"Kap Verde 🇨🇻",            pred:"2:0", over:48.0, btts:50.2, conf:"Sehr hoch"},
-  {id:40, gr:"G", date:"22.06", home:"Neuseeland 🇳🇿",    away:"Ägypten 🇪🇬",              pred:"0:2", over:44.7, btts:46.5, conf:"Sehr hoch"},
-  {id:41, gr:"J", date:"22.06", home:"Argentinien 🇦🇷",   away:"Österreich 🇦🇹",           pred:"2:0", over:63.7, btts:64.6, conf:"Hoch"},
-  {id:42, gr:"I", date:"22.06", home:"Frankreich 🇫🇷",    away:"Irak 🇮🇶",                 pred:"3:0", over:60.3, btts:59.2, conf:"Sehr hoch"},
-  {id:43, gr:"I", date:"23.06", home:"Norwegen 🇳🇴",      away:"Senegal 🇸🇳",              pred:"1:1", over:0,    btts:0,    conf:"Hoch"},
-  {id:44, gr:"J", date:"23.06", home:"Algerien 🇩🇿",      away:"Jordanien 🇯🇴",            pred:"1:1", over:0,    btts:0,    conf:"Mittel"},
-  {id:45, gr:"K", date:"23.06", home:"Portugal 🇵🇹",      away:"Usbekistan 🇺🇿",           pred:"3:0", over:0,    btts:0,    conf:"Sehr hoch"},
-  {id:46, gr:"L", date:"23.06", home:"England 🏴",        away:"Ghana 🇬🇭",                pred:"2:0", over:0,    btts:0,    conf:"Hoch"},
-  {id:47, gr:"K", date:"23.06", home:"Kolumbien 🇨🇴",     away:"DR Kongo 🇨🇩",             pred:"2:0", over:0,    btts:0,    conf:"Hoch"},
-  {id:48, gr:"L", date:"24.06", home:"Kroatien 🇭🇷",      away:"Panama 🇵🇦",               pred:"2:0", over:0,    btts:0,    conf:"Sehr hoch"},
+  {id:1,  gr:"A", date:"11.06", home:"Mexiko",         away:"Südafrika",            teams:"mexiko südafrika",           pred:"2:0", over:54.9, btts:55.9, conf:"Sehr hoch"},
+  {id:2,  gr:"A", date:"12.06", home:"Südkorea",       away:"Tschechien",            teams:"südkorea tschechien",         pred:"1:1", over:65.8, btts:66.0, conf:"Hoch"},
+  {id:3,  gr:"B", date:"12.06", home:"Kanada",         away:"Bosnien-Herzegowina",  teams:"kanada bosnien-herzegowina",  pred:"2:1", over:52.5, btts:56.2, conf:"Mittel"},
+  {id:4,  gr:"D", date:"13.06", home:"USA",             away:"Paraguay",              teams:"usa paraguay",                pred:"2:0", over:62.3, btts:62.6, conf:"Sehr hoch"},
+  {id:5,  gr:"B", date:"13.06", home:"Katar",          away:"Schweiz",               teams:"katar schweiz",               pred:"0:2", over:59.0, btts:60.2, conf:"Sehr hoch"},
+  {id:6,  gr:"C", date:"14.06", home:"Brasilien",      away:"Marokko",               teams:"brasilien marokko",           pred:"2:1", over:72.0, btts:71.3, conf:"Mittel"},
+  {id:7,  gr:"C", date:"14.06", home:"Haiti",          away:"Schottland",            teams:"haiti schottland",            pred:"0:2", over:47.0, btts:50.3, conf:"Sehr hoch"},
+  {id:8,  gr:"D", date:"14.06", home:"Australien",     away:"Türkei",                teams:"australien türkei",           pred:"1:1", over:64.7, btts:65.7, conf:"Niedrig"},
+  {id:9,  gr:"E", date:"14.06", home:"Deutschland",    away:"Curaçao",               teams:"deutschland curaçao",         pred:"4:0", over:48.2, btts:49.6, conf:"Sehr hoch"},
+  {id:10, gr:"F", date:"14.06", home:"Niederlande",    away:"Japan",                 teams:"niederlande japan",           pred:"2:1", over:64.9, btts:65.8, conf:"Mittel"},
+  {id:11, gr:"E", date:"15.06", home:"Elfenbeinküste", away:"Ecuador",               teams:"elfenbeinküste ecuador",      pred:"1:1", over:54.6, btts:57.9, conf:"Niedrig"},
+  {id:12, gr:"F", date:"15.06", home:"Schweden",       away:"Tunesien",              teams:"schweden tunesien",           pred:"2:0", over:62.9, btts:64.3, conf:"Mittel"},
+  {id:13, gr:"H", date:"15.06", home:"Spanien",        away:"Kap Verde",             teams:"spanien kap verde",          pred:"3:0", over:59.0, btts:57.2, conf:"Sehr hoch"},
+  {id:14, gr:"G", date:"15.06", home:"Belgien",        away:"Ägypten",               teams:"belgien ägypten",             pred:"2:0", over:67.6, btts:67.5, conf:"Hoch"},
+  {id:15, gr:"H", date:"16.06", home:"Saudi-Arabien",  away:"Uruguay",               teams:"saudi-arabien uruguay",       pred:"0:2", over:53.4, btts:56.0, conf:"Sehr hoch"},
+  {id:16, gr:"G", date:"16.06", home:"Iran",           away:"Neuseeland",            teams:"iran neuseeland",             pred:"2:0", over:48.4, btts:48.1, conf:"Sehr hoch"},
+  {id:17, gr:"I", date:"16.06", home:"Frankreich",     away:"Senegal",               teams:"frankreich senegal",          pred:"2:1", over:71.2, btts:70.6, conf:"Hoch"},
+  {id:18, gr:"I", date:"17.06", home:"Irak",           away:"Norwegen",              teams:"irak norwegen",               pred:"0:2", over:54.7, btts:56.5, conf:"Sehr hoch"},
+  {id:19, gr:"J", date:"17.06", home:"Argentinien",    away:"Algerien",              teams:"argentinien algerien",        pred:"2:0", over:62.5, btts:63.5, conf:"Sehr hoch"},
+  {id:20, gr:"J", date:"17.06", home:"Österreich",     away:"Jordanien",             teams:"österreich jordanien",        pred:"2:1", over:49.5, btts:50.7, conf:"Sehr hoch"},
+  {id:21, gr:"K", date:"17.06", home:"Portugal",       away:"DR Kongo",              teams:"portugal dr kongo",           pred:"3:0", over:54.3, btts:55.8, conf:"Sehr hoch"},
+  {id:22, gr:"L", date:"17.06", home:"England",        away:"Kroatien",              teams:"england kroatien",            pred:"1:1", over:66.6, btts:67.2, conf:"Niedrig"},
+  {id:23, gr:"L", date:"18.06", home:"Ghana",          away:"Panama",                teams:"ghana panama",                pred:"2:1", over:49.8, btts:53.4, conf:"Hoch"},
+  {id:24, gr:"K", date:"18.06", home:"Usbekistan",     away:"Kolumbien",             teams:"usbekistan kolumbien",        pred:"1:2", over:58.0, btts:57.5, conf:"Sehr hoch"},
+  {id:25, gr:"A", date:"18.06", home:"Tschechien",     away:"Südafrika",             teams:"tschechien südafrika",        pred:"2:0", over:52.4, btts:55.9, conf:"Hoch"},
+  {id:26, gr:"B", date:"18.06", home:"Schweiz",        away:"Bosnien-Herzegowina",  teams:"schweiz bosnien-herzegowina", pred:"2:0", over:59.8, btts:61.0, conf:"Sehr hoch"},
+  {id:27, gr:"B", date:"19.06", home:"Kanada",         away:"Katar",                 teams:"kanada katar",                pred:"2:0", over:51.5, btts:55.4, conf:"Mittel"},
+  {id:28, gr:"A", date:"19.06", home:"Mexiko",         away:"Südkorea",              teams:"mexiko südkorea",             pred:"1:1", over:64.1, btts:65.1, conf:"Niedrig"},
+  {id:29, gr:"D", date:"19.06", home:"USA",             away:"Australien",            teams:"usa australien",              pred:"2:1", over:68.9, btts:68.9, conf:"Mittel"},
+  {id:30, gr:"C", date:"20.06", home:"Schottland",     away:"Marokko",               teams:"schottland marokko",          pred:"1:1", over:64.9, btts:65.5, conf:"Hoch"},
+  {id:31, gr:"C", date:"20.06", home:"Brasilien",      away:"Haiti",                 teams:"brasilien haiti",             pred:"4:0", over:49.9, btts:49.9, conf:"Sehr hoch"},
+  {id:32, gr:"D", date:"20.06", home:"Türkei",         away:"Paraguay",              teams:"türkei paraguay",             pred:"1:1", over:57.5, btts:59.8, conf:"Hoch"},
+  {id:33, gr:"F", date:"20.06", home:"Niederlande",    away:"Schweden",              teams:"niederlande schweden",        pred:"2:1", over:69.5, btts:69.3, conf:"Hoch"},
+  {id:34, gr:"E", date:"20.06", home:"Deutschland",    away:"Elfenbeinküste",         teams:"deutschland elfenbeinküste",  pred:"2:0", over:62.7, btts:63.3, conf:"Sehr hoch"},
+  {id:35, gr:"E", date:"21.06", home:"Ecuador",        away:"Curaçao",               teams:"ecuador curaçao",             pred:"2:0", over:45.8, btts:49.8, conf:"Sehr hoch"},
+  {id:36, gr:"F", date:"21.06", home:"Tunesien",       away:"Japan",                 teams:"tunesien japan",              pred:"1:1", over:58.1, btts:60.5, conf:"Hoch"},
+  {id:37, gr:"H", date:"21.06", home:"Spanien",        away:"Saudi-Arabien",         teams:"spanien saudi-arabien",       pred:"3:0", over:64.0, btts:63.3, conf:"Sehr hoch"},
+  {id:38, gr:"G", date:"21.06", home:"Belgien",        away:"Iran",                  teams:"belgien iran",                pred:"2:1", over:70.2, btts:69.9, conf:"Mittel"},
+  {id:39, gr:"H", date:"22.06", home:"Uruguay",        away:"Kap Verde",             teams:"uruguay kap verde",          pred:"2:0", over:48.0, btts:50.2, conf:"Sehr hoch"},
+  {id:40, gr:"G", date:"22.06", home:"Neuseeland",     away:"Ägypten",               teams:"neuseeland ägypten",          pred:"0:2", over:44.7, btts:46.5, conf:"Sehr hoch"},
+  {id:41, gr:"J", date:"22.06", home:"Argentinien",    away:"Österreich",            teams:"argentinien österreich",      pred:"2:0", over:63.7, btts:64.6, conf:"Hoch"},
+  {id:42, gr:"I", date:"22.06", home:"Frankreich",     away:"Irak",                  teams:"frankreich irak",             pred:"3:0", over:60.3, btts:59.2, conf:"Sehr hoch"},
+  {id:43, gr:"I", date:"23.06", home:"Norwegen",       away:"Senegal",               teams:"norwegen senegal",            pred:"1:1", over:0,    btts:0,    conf:"Hoch"},
+  {id:44, gr:"J", date:"23.06", home:"Algerien",       away:"Jordanien",             teams:"algerien jordanien",          pred:"1:1", over:0,    btts:0,    conf:"Mittel"},
+  {id:45, gr:"K", date:"23.06", home:"Portugal",       away:"Usbekistan",            teams:"portugal usbekistan",         pred:"3:0", over:0,    btts:0,    conf:"Sehr hoch"},
+  {id:46, gr:"L", date:"23.06", home:"England",        away:"Ghana",                 teams:"england ghana",               pred:"2:0", over:0,    btts:0,    conf:"Hoch"},
+  {id:47, gr:"K", date:"23.06", home:"Kolumbien",      away:"DR Kongo",              teams:"kolumbien dr kongo",          pred:"2:0", over:0,    btts:0,    conf:"Hoch"},
+  {id:48, gr:"L", date:"24.06", home:"Kroatien",       away:"Panama",                teams:"kroatien panama",             pred:"2:0", over:0,    btts:0,    conf:"Sehr hoch"},
 ];
 
-let results = JSON.parse(localStorage.getItem('wm26_results') || '{}');
+// Ergebnisse aus results.json + manuelle Overrides aus localStorage
+let jsonResults = {};   // aus results.json (teams-key → "H:A")
+let overrides  = JSON.parse(localStorage.getItem('wm26_overrides') || '{}'); // id-key
 let charts = {};
 let tableFilter = 'all';
+
+// ─── results.json LADEN ──────────────────────────────────────────────────────
+function loadResultsJson(){
+  fetch('results.json?nocache='+Date.now())
+    .then(r=>r.json())
+    .then(data=>{
+      data.forEach(r=>{
+        if(r.status==='finished'){
+          jsonResults[r.teams] = r.home+':'+r.away;
+        }
+      });
+      document.getElementById('srcBadge').textContent =
+        '✅ results.json geladen · '+Object.keys(jsonResults).length+' Ergebnisse';
+      document.getElementById('srcBadge').style.background='rgba(73,210,140,.12)';
+      refresh();
+    })
+    .catch(()=>{
+      document.getElementById('srcBadge').textContent='⚠️ results.json nicht ladbar – nur localStorage';
+      document.getElementById('srcBadge').style.background='rgba(255,93,115,.12)';
+      document.getElementById('srcBadge').style.color='var(--red)';
+      refresh();
+    });
+}
+
+// Ergebnis für ein Match holen: Priorität: override > jsonResults
+function getActual(m){
+  if(overrides[m.id]) return overrides[m.id];
+  // Suche in jsonResults nach teams-key (normalisiert)
+  const key = m.teams;
+  if(jsonResults[key]) return jsonResults[key];
+  // Fallback: alle Schlüssel durchsuchen nach Teilstring-Match
+  for(const k of Object.keys(jsonResults)){
+    const a=k.split(' '), b=m.teams.split(' ');
+    if((a[0]===b[0]||a[1]===b[0]) && (a[0]===b[1]||a[1]===b[1])) return jsonResults[k];
+  }
+  return '';
+}
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 function getScore(str){
@@ -251,19 +291,12 @@ function getScore(str){
 }
 function tendency(s){ if(!s) return null; if(s.a>s.b) return 'H'; if(s.b>s.a) return 'A'; return 'D'; }
 
-// Torverhältnis: Richtung der Tordifferenz korrekt?
-// pred 2:1 → diff +1; actual 1:0 → diff +1 → ✓
-// pred 2:1 → diff +1; actual 0:1 → diff -1 → ✗
-// pred 1:1 → diff  0; actual 0:0 → diff  0 → ✓
-function goalRatioCorrect(pred, actual){
-  const ps=getScore(pred), as=getScore(actual);
+function goalRatioCorrect(pred,actual){
+  const ps=getScore(pred),as=getScore(actual);
   if(!ps||!as) return null;
-  const pdiff = ps.a - ps.b;
-  const adiff = as.a - as.b;
-  // sign comparison: both positive, both negative, or both zero
-  const psign = pdiff>0?1:pdiff<0?-1:0;
-  const asign = adiff>0?1:adiff<0?-1:0;
-  return psign === asign;
+  const psign = ps.a>ps.b?1:ps.a<ps.b?-1:0;
+  const asign = as.a>as.b?1:as.a<as.b?-1:0;
+  return psign===asign;
 }
 
 function getStatus(pred,actual){
@@ -283,27 +316,28 @@ function bttsCorrect(match,actual){
   return (sc.a>0&&sc.b>0)===(match.btts>50);
 }
 
+// ─── SELECT ───────────────────────────────────────────────────────────────────
 function populateSelect(){
   const sel=document.getElementById('matchSelect');
-  sel.innerHTML=MATCHES.map(m=>`<option value="${m.id}">[Gr.${m.gr}] ${m.date} · ${m.home.split(' ')[0]} vs ${m.away.split(' ')[0]} (Prognose: ${m.pred})</option>`).join('');
+  sel.innerHTML=MATCHES.map(m=>`<option value="${m.id}">[Gr.${m.gr}] ${m.date} · ${m.home} vs ${m.away} (Prog: ${m.pred})</option>`).join('');
 }
 function saveResult(){
   const id=document.getElementById('matchSelect').value;
   const score=document.getElementById('actualScore').value.trim();
   if(!score){alert('Bitte Ergebnis eingeben');return;}
   if(!getScore(score)){alert('Ungültiges Format. z.B. 2:1');return;}
-  results[id]=score;
-  localStorage.setItem('wm26_results',JSON.stringify(results));
+  overrides[id]=score;
+  localStorage.setItem('wm26_overrides',JSON.stringify(overrides));
   document.getElementById('actualScore').value='';
   refresh();
 }
-function clearAll(){
-  if(confirm('Alle gespeicherten Ergebnisse löschen?')){
-    results={}; localStorage.removeItem('wm26_results'); refresh();
+function clearOverrides(){
+  if(confirm('Alle manuellen Overrides löschen? (results.json-Daten bleiben erhalten)')){
+    overrides={};localStorage.removeItem('wm26_overrides');refresh();
   }
 }
 
-// ─── COMPUTE STATS ────────────────────────────────────────────────────────────
+// ─── STATS ────────────────────────────────────────────────────────────────────
 function computeStats(){
   let exact=0,tendency_=0,wrong=0,pending=0;
   let ratioRight=0,ratioTotal=0;
@@ -313,23 +347,18 @@ function computeStats(){
   const groupStats={}, timeline=[];
 
   MATCHES.forEach(m=>{
-    const actual=results[m.id];
+    const actual=getActual(m);
     const status=getStatus(m.pred,actual);
     if(status==='pending'){pending++;return;}
-
     if(!groupStats[m.gr]) groupStats[m.gr]={right:0,total:0};
     groupStats[m.gr].total++;
     const ps=getScore(m.pred),as=getScore(actual);
     totalPredGoals+=ps.a+ps.b; totalActualGoals+=as.a+as.b; goalCount++;
-
     if(status==='exact'){exact++;groupStats[m.gr].right++;}
     else if(status==='tendency'){tendency_++;groupStats[m.gr].right++;}
     else{wrong++;}
-
-    // Torverhältnis
     const rc=goalRatioCorrect(m.pred,actual);
     if(rc!==null){ratioTotal++;if(rc)ratioRight++;}
-
     if(m.over>0){
       const oc=overCorrect(m,actual); if(oc!==null){overTotal++;if(oc)overRight++;}
       const bc=bttsCorrect(m,actual); if(bc!==null){bttsTotal++;if(bc)bttsRight++;}
@@ -340,218 +369,121 @@ function computeStats(){
     }
     timeline.push({status});
   });
-  const total=exact+tendency_+wrong;
-  return {exact,tendency:tendency_,wrong,pending,total,
+  return {exact,tendency:tendency_,wrong,pending,total:exact+tendency_+wrong,
     ratioRight,ratioTotal,overRight,overTotal,bttsRight,bttsTotal,
     avgPredGoals:goalCount?totalPredGoals/goalCount:0,
     avgActualGoals:goalCount?totalActualGoals/goalCount:0,
     confBuckets,groupStats,timeline};
 }
 
-// ─── CHART COLORS & HELPERS ───────────────────────────────────────────────────
+// ─── CHART HELPERS ────────────────────────────────────────────────────────────
 const C={green:'#49d28c',lightgreen:'#7eefc0',gold:'#f3b83b',red:'#ff5d73',blue:'#67a4ff',violet:'#b38bff',muted:'#a8b4cf',dark:'#2a3550',gridLine:'rgba(42,53,80,0.7)'};
 const fontDef={color:'#a8b4cf',family:'Inter,system-ui,sans-serif'};
 const tooltipDef={backgroundColor:'#141c2d',borderColor:'#2a3550',borderWidth:1,titleColor:'#eef3ff',bodyColor:'#a8b4cf'};
 const pluginBase={legend:{display:false},tooltip:tooltipDef};
 function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
-
-// ─── DATALABELS CONFIG HELPERS ────────────────────────────────────────────────
-function dlBar(unit='',color='#eef3ff'){
-  return {
-    datalabels:{
-      display:true,
-      anchor:'end',align:'end',
-      color,font:{weight:'700',size:13,family:'Inter,system-ui,sans-serif'},
-      formatter:(v)=>v>0?(v+(unit)):null,
-      clip:false
-    }
-  };
-}
+function dlBar(unit='',color='#eef3ff'){return{datalabels:{display:true,anchor:'end',align:'end',color,font:{weight:'700',size:13,family:'Inter,system-ui,sans-serif'},formatter:(v)=>v>0?(v+unit):null,clip:false}};}
 function dlBarPct(){return dlBar('%','#eef3ff');}
 
-// ─── DRAW: DONUT (Trefferquoten) ──────────────────────────────────────────────
 function drawDonut(s){
   destroyChart('donut');
   const ctx=document.getElementById('chartDonut').getContext('2d');
   const data=[s.exact,s.tendency,s.wrong,s.pending];
   const total=data.reduce((a,b)=>a+b,0);
-  charts.donut=new Chart(ctx,{
-    type:'doughnut',
+  charts.donut=new Chart(ctx,{type:'doughnut',
     data:{labels:['Exact ✅','Tendenz 🟢','Falsch ❌','Offen ⏳'],
       datasets:[{data,backgroundColor:[C.green,C.lightgreen,C.red,C.dark],borderColor:'#141c2d',borderWidth:3,hoverOffset:6}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
-      plugins:{...pluginBase,
-        datalabels:{
-          display:(ctx)=>ctx.dataset.data[ctx.dataIndex]>0,
-          color:'#111',font:{weight:'900',size:12},
-          formatter:(val,ctx)=>{
-            const pct=total?Math.round(val/total*100):0;
-            return val+'\n('+pct+'%)';
-          },
-          textAlign:'center'
-        }
-      }}
-  });
-  const lg=document.getElementById('donutLegend');
-  const items=[[C.green,'Exact'],[C.lightgreen,'Tendenz'],[C.red,'Falsch'],[C.dark,'Offen']];
-  lg.innerHTML=items.map(([c,l])=>`<div class="legend-item"><div class="legend-dot" style="background:${c}"></div><span>${l}</span></div>`).join('');
+      plugins:{...pluginBase,datalabels:{display:(ctx)=>ctx.dataset.data[ctx.dataIndex]>0,color:'#111',font:{weight:'900',size:12},formatter:(val)=>{const pct=total?Math.round(val/total*100):0;return val+'\n('+pct+'%)';},textAlign:'center'}}}});
+  document.getElementById('donutLegend').innerHTML=[[C.green,'Exact'],[C.lightgreen,'Tendenz'],[C.red,'Falsch'],[C.dark,'Offen']].map(([c,l])=>`<div class="legend-item"><div class="legend-dot" style="background:${c}"></div><span>${l}</span></div>`).join('');
 }
 
-// ─── DRAW: TORVERHÄLTNIS DONUT ────────────────────────────────────────────────
 function drawRatio(s){
   destroyChart('ratio');
   const ctx=document.getElementById('chartRatio').getContext('2d');
-  const right=s.ratioRight, wrong=s.ratioTotal-s.ratioRight;
+  const right=s.ratioRight,wrong=s.ratioTotal-s.ratioRight;
   const pct=s.ratioTotal?Math.round(s.ratioRight/s.ratioTotal*100):0;
-  charts.ratio=new Chart(ctx,{
-    type:'doughnut',
-    data:{labels:['Korrekt ✅','Falsch ❌'],
-      datasets:[{data:[right,wrong],backgroundColor:[C.blue,C.dark],borderColor:'#141c2d',borderWidth:3}]},
+  charts.ratio=new Chart(ctx,{type:'doughnut',
+    data:{labels:['Korrekt ✅','Falsch ❌'],datasets:[{data:[right,wrong],backgroundColor:[C.blue,C.dark],borderColor:'#141c2d',borderWidth:3}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
       plugins:{...pluginBase,
-        datalabels:{
-          display:(ctx)=>ctx.dataset.data[ctx.dataIndex]>0,
-          color:'#eef3ff',font:{weight:'900',size:13},
-          formatter:(val)=>val
-        },
-        beforeDraw(chart){
-          const{ctx:c,chartArea:{left,right,top,bottom}}=chart;
-          c.save();c.font='bold 30px Inter';c.fillStyle=C.blue;
-          c.textAlign='center';c.textBaseline='middle';
-          c.fillText(pct+'%',(left+right)/2,(top+bottom)/2);c.restore();
-        }
-      }}
-  });
-  const lg=document.getElementById('ratioLegend');
-  lg.innerHTML=`<div class="legend-item"><div class="legend-dot" style="background:${C.blue}"></div><span>${right} Korrekt (${pct}%)</span></div><div class="legend-item"><div class="legend-dot" style="background:${C.dark}"></div><span>${wrong} Falsch</span></div>`;
+        datalabels:{display:(ctx)=>ctx.dataset.data[ctx.dataIndex]>0,color:'#eef3ff',font:{weight:'900',size:13},formatter:(val)=>val},
+        beforeDraw(chart){const{ctx:c,chartArea:{left,right,top,bottom}}=chart;c.save();c.font='bold 30px Inter';c.fillStyle=C.blue;c.textAlign='center';c.textBaseline='middle';c.fillText(pct+'%',(left+right)/2,(top+bottom)/2);c.restore();}}}});
+  document.getElementById('ratioLegend').innerHTML=`<div class="legend-item"><div class="legend-dot" style="background:${C.blue}"></div><span>${right} Korrekt (${pct}%)</span></div><div class="legend-item"><div class="legend-dot" style="background:${C.dark}"></div><span>${wrong} Falsch</span></div>`;
 }
 
-// ─── DRAW: TORE BALKEN ────────────────────────────────────────────────────────
 function drawGoals(s){
   destroyChart('goals');
   const ctx=document.getElementById('chartGoals').getContext('2d');
-  const vP=+s.avgPredGoals.toFixed(2), vA=+s.avgActualGoals.toFixed(2);
-  charts.goals=new Chart(ctx,{
-    type:'bar',
-    data:{labels:['⌀ Prognose','⌀ Realität'],
-      datasets:[{data:[vP,vA],backgroundColor:[C.blue,C.green],borderRadius:12,borderSkipped:false}]},
+  const vP=+s.avgPredGoals.toFixed(2),vA=+s.avgActualGoals.toFixed(2);
+  charts.goals=new Chart(ctx,{type:'bar',
+    data:{labels:['⌀ Prognose','⌀ Realität'],datasets:[{data:[vP,vA],backgroundColor:[C.blue,C.green],borderRadius:12,borderSkipped:false}]},
     options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:30}},
       plugins:{...pluginBase,...dlBar(' Tore','#eef3ff')},
       scales:{x:{ticks:{color:C.muted,font:fontDef},grid:{display:false},border:{display:false}},
-        y:{ticks:{color:C.muted,font:fontDef},grid:{color:C.gridLine},border:{display:false},
-          suggestedMax:Math.max(vP,vA)+0.8,title:{display:true,text:'Ø Tore / Spiel',color:C.muted}}}}
-  });
+        y:{ticks:{color:C.muted,font:fontDef},grid:{color:C.gridLine},border:{display:false},suggestedMax:Math.max(vP,vA)+0.8}}}});
 }
 
-// ─── DRAW: OVER/UNDER DONUT ───────────────────────────────────────────────────
+function makeDonut(canvasId,data,colors,pct,pctColor){
+  destroyChart(canvasId);
+  const ctx=document.getElementById('chart'+canvasId[0].toUpperCase()+canvasId.slice(1)).getContext('2d');
+  const chart=new Chart(ctx,{type:'doughnut',
+    data:{labels:['Richtig ✅','Falsch ❌'],datasets:[{data,backgroundColor:colors,borderColor:'#141c2d',borderWidth:3}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+      plugins:{...pluginBase,
+        datalabels:{display:(ctx)=>ctx.dataset.data[ctx.dataIndex]>0,color:'#eef3ff',font:{weight:'900',size:13},formatter:(val)=>val},
+        beforeDraw(ch){const{ctx:c,chartArea:{left,right,top,bottom}}=ch;c.save();c.font='bold 30px Inter';c.fillStyle=pctColor;c.textAlign='center';c.textBaseline='middle';c.fillText(pct+'%',(left+right)/2,(top+bottom)/2);c.restore();}}}});
+  return chart;
+}
+
 function drawOverUnder(s){
-  destroyChart('ou');
-  const ctx=document.getElementById('chartOverUnder').getContext('2d');
-  const right=s.overRight, wrong_=s.overTotal-s.overRight;
+  const right=s.overRight,wrong=s.overTotal-s.overRight;
   const pct=s.overTotal?Math.round(right/s.overTotal*100):0;
-  charts.ou=new Chart(ctx,{
-    type:'doughnut',
-    data:{labels:['Richtig ✅','Falsch ❌'],
-      datasets:[{data:[right,wrong_],backgroundColor:[C.violet,C.dark],borderColor:'#141c2d',borderWidth:3}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
-      plugins:{...pluginBase,
-        datalabels:{
-          display:(ctx)=>ctx.dataset.data[ctx.dataIndex]>0,
-          color:'#eef3ff',font:{weight:'900',size:13},
-          formatter:(val)=>val
-        },
-        beforeDraw(chart){
-          const{ctx:c,chartArea:{left,right,top,bottom}}=chart;
-          c.save();c.font='bold 30px Inter';c.fillStyle=C.violet;
-          c.textAlign='center';c.textBaseline='middle';
-          c.fillText(pct+'%',(left+right)/2,(top+bottom)/2);c.restore();
-        }
-      }}
-  });
+  charts.ou=makeDonut('overUnder',[right,wrong],[C.violet,C.dark],pct,C.violet);
 }
-
-// ─── DRAW: BTTS DONUT ─────────────────────────────────────────────────────────
 function drawBtts(s){
-  destroyChart('btts');
-  const ctx=document.getElementById('chartBtts').getContext('2d');
-  const right=s.bttsRight, wrong_=s.bttsTotal-s.bttsRight;
+  const right=s.bttsRight,wrong=s.bttsTotal-s.bttsRight;
   const pct=s.bttsTotal?Math.round(right/s.bttsTotal*100):0;
-  charts.btts=new Chart(ctx,{
-    type:'doughnut',
-    data:{labels:['Richtig ✅','Falsch ❌'],
-      datasets:[{data:[right,wrong_],backgroundColor:[C.gold,C.dark],borderColor:'#141c2d',borderWidth:3}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
-      plugins:{...pluginBase,
-        datalabels:{
-          display:(ctx)=>ctx.dataset.data[ctx.dataIndex]>0,
-          color:'#111',font:{weight:'900',size:13},
-          formatter:(val)=>val
-        },
-        beforeDraw(chart){
-          const{ctx:c,chartArea:{left,right,top,bottom}}=chart;
-          c.save();c.font='bold 30px Inter';c.fillStyle=C.gold;
-          c.textAlign='center';c.textBaseline='middle';
-          c.fillText(pct+'%',(left+right)/2,(top+bottom)/2);c.restore();
-        }
-      }}
-  });
+  charts.btts=makeDonut('btts',[right,wrong],[C.gold,C.dark],pct,C.gold);
 }
 
-// ─── DRAW: CONFIDENCE VERTEILUNG ──────────────────────────────────────────────
 function drawConf(s){
   destroyChart('conf');
   const ctx=document.getElementById('chartConf').getContext('2d');
   const labels=['Sehr hoch','Hoch','Mittel','Niedrig'];
-  const vals=labels.map(l=>s.confBuckets[l]?.total||0);
-  charts.conf=new Chart(ctx,{
-    type:'bar',
-    data:{labels,datasets:[{data:vals,backgroundColor:[C.green,C.blue,C.gold,C.red],borderRadius:10,borderSkipped:false}]},
+  charts.conf=new Chart(ctx,{type:'bar',
+    data:{labels,datasets:[{data:labels.map(l=>s.confBuckets[l]?.total||0),backgroundColor:[C.green,C.blue,C.gold,C.red],borderRadius:10,borderSkipped:false}]},
     options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:28}},
       plugins:{...pluginBase,...dlBar(' Spiele','#eef3ff')},
       scales:{x:{ticks:{color:C.muted,font:fontDef},grid:{display:false},border:{display:false}},
-        y:{ticks:{color:C.muted,font:fontDef,stepSize:1},grid:{color:C.gridLine},border:{display:false},
-          title:{display:true,text:'Anzahl Prognosen',color:C.muted}}}}
-  });
+        y:{ticks:{color:C.muted,font:fontDef,stepSize:1},grid:{color:C.gridLine},border:{display:false}}}}});
 }
 
-// ─── DRAW: CONFIDENCE ACCURACY ────────────────────────────────────────────────
 function drawConfAccuracy(s){
   destroyChart('confAcc');
   const ctx=document.getElementById('chartConfAccuracy').getContext('2d');
   const labels=['Sehr hoch','Hoch','Mittel','Niedrig'];
-  const vals=labels.map(l=>{const b=s.confBuckets[l];return b&&b.total?Math.round(b.right/b.total*100):0;});
-  charts.confAcc=new Chart(ctx,{
-    type:'bar',
-    data:{labels,datasets:[{data:vals,backgroundColor:[C.green,C.blue,C.gold,C.red],borderRadius:10,borderSkipped:false}]},
+  charts.confAcc=new Chart(ctx,{type:'bar',
+    data:{labels,datasets:[{data:labels.map(l=>{const b=s.confBuckets[l];return b&&b.total?Math.round(b.right/b.total*100):0;}),backgroundColor:[C.green,C.blue,C.gold,C.red],borderRadius:10,borderSkipped:false}]},
     options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:28}},
       plugins:{...pluginBase,...dlBarPct()},
       scales:{x:{ticks:{color:C.muted,font:fontDef},grid:{display:false},border:{display:false}},
-        y:{ticks:{color:C.muted,font:fontDef,callback:v=>v+'%'},grid:{color:C.gridLine},border:{display:false},
-          min:0,max:100,title:{display:true,text:'Trefferquote %',color:C.muted}}}}
-  });
+        y:{ticks:{color:C.muted,font:fontDef,callback:v=>v+'%'},grid:{color:C.gridLine},border:{display:false},min:0,max:100}}}});
 }
 
-// ─── DRAW: GRUPPEN ────────────────────────────────────────────────────────────
 function drawGroups(s){
   destroyChart('groups');
   const ctx=document.getElementById('chartGroups').getContext('2d');
   const grps=Object.keys(s.groupStats).sort();
   const vals=grps.map(g=>{const gs=s.groupStats[g];return gs.total?Math.round(gs.right/gs.total*100):0;});
-  charts.groups=new Chart(ctx,{
-    type:'bar',
-    data:{labels:grps.map(g=>'Gr. '+g),
-      datasets:[{data:vals,
-        backgroundColor:vals.map(v=>v>=70?C.green:v>=50?C.blue:v>=33?C.gold:C.red),
-        borderRadius:10,borderSkipped:false}]},
+  charts.groups=new Chart(ctx,{type:'bar',
+    data:{labels:grps.map(g=>'Gr. '+g),datasets:[{data:vals,backgroundColor:vals.map(v=>v>=70?C.green:v>=50?C.blue:v>=33?C.gold:C.red),borderRadius:10,borderSkipped:false}]},
     options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:28}},
       plugins:{...pluginBase,...dlBarPct()},
       scales:{x:{ticks:{color:C.muted,font:fontDef},grid:{display:false},border:{display:false}},
-        y:{ticks:{color:C.muted,font:fontDef,callback:v=>v+'%'},grid:{color:C.gridLine},border:{display:false},
-          min:0,max:110,title:{display:true,text:'Tendenz-Trefferquote %',color:C.muted}}}}
-  });
+        y:{ticks:{color:C.muted,font:fontDef,callback:v=>v+'%'},grid:{color:C.gridLine},border:{display:false},min:0,max:110}}}});
 }
 
-// ─── DRAW: TIMELINE ───────────────────────────────────────────────────────────
 function drawTimeline(s){
   destroyChart('timeline');
   const ctx=document.getElementById('chartTimeline').getContext('2d');
@@ -561,31 +493,19 @@ function drawTimeline(s){
     pts.push(Math.round(cum/(i+1)*100));
   });
   if(!pts.length) pts=[0];
-  charts.timeline=new Chart(ctx,{
-    type:'line',
-    data:{labels:s.timeline.map((t,i)=>'Sp.'+(i+1)),
-      datasets:[{label:'Trefferquote %',data:pts,
-        borderColor:C.gold,backgroundColor:'rgba(243,184,59,.08)',
-        tension:.4,fill:true,
-        pointRadius:pts.length<25?5:3,
+  charts.timeline=new Chart(ctx,{type:'line',
+    data:{labels:s.timeline.map((_,i)=>'Sp.'+(i+1)),
+      datasets:[{label:'Trefferquote %',data:pts,borderColor:C.gold,backgroundColor:'rgba(243,184,59,.08)',
+        tension:.4,fill:true,pointRadius:pts.length<25?5:3,
         pointBackgroundColor:pts.map(v=>v>=60?C.green:v>=40?C.gold:C.red),
         pointBorderColor:'#141c2d',pointBorderWidth:2}]},
     options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:24}},
-      plugins:{...pluginBase,
-        datalabels:{
-          display:(ctx)=>pts.length<=20,
-          color:'#eef3ff',font:{weight:'700',size:10},
-          anchor:'top',align:'top',
-          formatter:(v)=>v+'%'
-        }
-      },
-      scales:{x:{ticks:{color:C.muted,font:fontDef,maxRotation:0,autoSkip:true,maxTicksLimit:12},
-          grid:{display:false},border:{display:false}},
-        y:{ticks:{color:C.muted,font:fontDef,callback:v=>v+'%'},grid:{color:C.gridLine},border:{display:false},min:0,max:110}}}
-  });
+      plugins:{...pluginBase,datalabels:{display:()=>pts.length<=20,color:'#eef3ff',font:{weight:'700',size:10},anchor:'top',align:'top',formatter:(v)=>v+'%'}},
+      scales:{x:{ticks:{color:C.muted,font:fontDef,maxRotation:0,autoSkip:true,maxTicksLimit:12},grid:{display:false},border:{display:false}},
+        y:{ticks:{color:C.muted,font:fontDef,callback:v=>v+'%'},grid:{color:C.gridLine},border:{display:false},min:0,max:110}}}});
 }
 
-// ─── KPI UPDATE ───────────────────────────────────────────────────────────────
+// ─── KPI ──────────────────────────────────────────────────────────────────────
 function updateKPI(s){
   const pct=(n,d)=>d?Math.round(n/d*100)+'%':'—';
   document.getElementById('kpiTotal').textContent=s.total||'0';
@@ -602,37 +522,25 @@ const confColor={'Sehr hoch':C.green,'Hoch':C.blue,'Mittel':C.gold,'Niedrig':C.r
 function buildTable(){
   const tbody=document.getElementById('resultBody');
   tbody.innerHTML=MATCHES.map(m=>{
-    const actual=results[m.id]||'';
+    const actual=getActual(m);
     const status=getStatus(m.pred,actual);
     const rc=actual?goalRatioCorrect(m.pred,actual):null;
-    // Special filter: ratio_only = wrong tendency but correct ratio
-    if(tableFilter==='ratio_only'){
-      if(status!=='wrong'||rc!==true) return '';
-    } else if(tableFilter!=='all'&&status!==tableFilter) return '';
-
+    if(tableFilter==='ratio_only'){if(status!=='wrong'||rc!==true) return '';}
+    else if(tableFilter!=='all'&&status!==tableFilter) return '';
     const oc=actual&&m.over>0?overCorrect(m,actual):null;
     const bc=actual&&m.btts>0?bttsCorrect(m,actual):null;
     const ps=getScore(m.pred),as=getScore(actual);
     const tendOk=ps&&as?tendency(ps)===tendency(as):null;
-
-    const statusBadge={
-      exact:`<span class="badge exact">✅ Exact</span>`,
-      tendency:`<span class="badge tendency">🟢 Tendenz</span>`,
-      wrong:`<span class="badge wrong">❌ Falsch</span>`,
-      pending:`<span class="badge pending">⏳ Offen</span>`
-    }[status];
-
-    const ratioBadge = rc===null ? '–' :
-      rc ? `<span class="badge ratio">⚖️ ✓</span>` :
-           `<span style="color:var(--red);font-size:12px">✗</span>`;
-
+    const isOverride=!!overrides[m.id];
+    const statusBadge={exact:`<span class="badge exact">✅ Exact</span>`,tendency:`<span class="badge tendency">🟢 Tendenz</span>`,wrong:`<span class="badge wrong">❌ Falsch</span>`,pending:`<span class="badge pending">⏳ Offen</span>`}[status];
+    const ratioBadge=rc===null?'–':rc?`<span class="badge ratio">⚖️ ✓</span>`:`<span style="color:var(--red);font-size:12px">✗</span>`;
     return `<tr>
       <td style="color:var(--muted)">${m.id}</td>
       <td style="color:var(--muted)">${m.date}</td>
       <td><span style="background:rgba(103,164,255,.15);color:var(--blue);padding:2px 7px;border-radius:999px;font-size:11px;font-weight:800">${m.gr}</span></td>
-      <td style="font-size:12px">${m.home.split(' ')[0]} vs ${m.away.split(' ')[0]}</td>
+      <td style="font-size:12px">${m.home} vs ${m.away}</td>
       <td style="font-weight:800;color:var(--muted)">${m.pred}</td>
-      <td style="font-weight:800;color:${actual?'var(--text)':'var(--line)'}">${actual||'–'}</td>
+      <td style="font-weight:800;color:${actual?'var(--text)':'var(--line)'}">${actual||'–'}${isOverride?' <span style="font-size:9px;color:var(--gold)">✏️</span>':''}</td>
       <td>${statusBadge}</td>
       <td style="text-align:center">${actual?(tendOk?'✅':'❌'):'–'}</td>
       <td style="text-align:center">${ratioBadge}</td>
@@ -650,19 +558,14 @@ function filterTable(f,btn){
   buildTable();
 }
 
-// ─── REFRESH ──────────────────────────────────────────────────────────────────
 function refresh(){
   const s=computeStats();
-  updateKPI(s); drawDonut(s); drawRatio(s); drawGoals(s); drawOverUnder(s); drawBtts(s);
-  drawConf(s); drawConfAccuracy(s); drawGroups(s); drawTimeline(s); buildTable();
+  updateKPI(s);drawDonut(s);drawRatio(s);drawGoals(s);drawOverUnder(s);drawBtts(s);
+  drawConf(s);drawConfAccuracy(s);drawGroups(s);drawTimeline(s);buildTable();
 }
 
-// ─── INIT DATA ────────────────────────────────────────────────────────────────
-const knownResults={1:"2:1",2:"1:0",3:"1:0",4:"3:1",5:"0:1",6:"3:0",7:"0:1",8:"1:2",9:"4:1",10:"2:0",11:"0:1",12:"2:0",13:"2:0",14:"2:0",15:"0:1"};
-Object.keys(knownResults).forEach(k=>{if(!results[k]) results[k]=knownResults[k];});
-
 populateSelect();
-refresh();
+loadResultsJson();
 </script>
 </body>
 </html>
