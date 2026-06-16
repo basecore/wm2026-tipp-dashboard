@@ -94,5 +94,11 @@
     "home": 2,
     "away": 2,
     "status": "finished"
+  },
+  {
+    "teams": "frankreich senegal",
+    "home": 3,
+    "away": 1,
+    "status": "finished"
   }
 ]
