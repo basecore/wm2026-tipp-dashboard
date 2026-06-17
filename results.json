@@ -109,8 +109,14 @@
   },
   {
     "teams": "argentinien algerien",
-    "home": 1,
+    "home": 3,
     "away": 0,
-    "status": "live"
+    "status": "finished"
+  },
+  {
+    "teams": "österreich jordanien",
+    "home": 3,
+    "away": 1,
+    "status": "finished"
   }
 ]
