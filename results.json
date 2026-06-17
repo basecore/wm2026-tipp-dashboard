@@ -12,12 +12,6 @@
     "status": "finished"
   },
   {
-    "teams": "kanada bosnien-herzegowina",
-    "home": 1,
-    "away": 1,
-    "status": "finished"
-  },
-  {
     "teams": "usa paraguay",
     "home": 4,
     "away": 1,
@@ -118,5 +112,11 @@
     "home": 3,
     "away": 1,
     "status": "finished"
+  },
+  {
+    "teams": "portugal dr kongo",
+    "home": 1,
+    "away": 1,
+    "status": "live"
   }
 ]
