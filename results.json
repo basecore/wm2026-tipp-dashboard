@@ -104,7 +104,13 @@
   {
     "teams": "irak norwegen",
     "home": 1,
-    "away": 2,
+    "away": 4,
+    "status": "finished"
+  },
+  {
+    "teams": "argentinien algerien",
+    "home": 1,
+    "away": 0,
     "status": "live"
   }
 ]
