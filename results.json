@@ -146,7 +146,7 @@
   {
     "teams": "tschechien südafrika",
     "home": 1,
-    "away": 0,
-    "status": "live"
+    "away": 1,
+    "status": "finished"
   }
 ]
