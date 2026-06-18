@@ -133,8 +133,14 @@
   },
   {
     "teams": "ghana panama",
-    "home": 0,
+    "home": 1,
     "away": 0,
     "status": "live"
+  },
+  {
+    "teams": "usbekistan kolumbien",
+    "home": 1,
+    "away": 3,
+    "status": "finished"
   }
 ]
