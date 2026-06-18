@@ -148,5 +148,17 @@
     "home": 1,
     "away": 1,
     "status": "finished"
+  },
+  {
+    "teams": "schweiz bosnien-herzegowina",
+    "home": 4,
+    "away": 1,
+    "status": "finished"
+  },
+  {
+    "teams": "kanada katar",
+    "home": 0,
+    "away": 0,
+    "status": "live"
   }
 ]
