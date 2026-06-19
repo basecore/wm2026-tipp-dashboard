@@ -160,5 +160,11 @@
     "home": 6,
     "away": 0,
     "status": "finished"
+  },
+  {
+    "teams": "mexiko südkorea",
+    "home": 1,
+    "away": 0,
+    "status": "finished"
   }
 ]
