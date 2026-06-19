@@ -12,12 +12,6 @@
     "status": "finished"
   },
   {
-    "teams": "kanada bosnien-herzegowina",
-    "home": 1,
-    "away": 1,
-    "status": "finished"
-  },
-  {
     "teams": "usa paraguay",
     "home": 4,
     "away": 1,
@@ -170,6 +164,12 @@
   {
     "teams": "usa australien",
     "home": 2,
+    "away": 0,
+    "status": "finished"
+  },
+  {
+    "teams": "schottland marokko",
+    "home": 0,
     "away": 0,
     "status": "live"
   }
