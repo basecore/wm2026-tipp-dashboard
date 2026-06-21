@@ -207,6 +207,12 @@
     "teams": "ecuador curaçao",
     "home": 0,
     "away": 0,
+    "status": "finished"
+  },
+  {
+    "teams": "tunesien japan",
+    "home": 0,
+    "away": 2,
     "status": "live"
   }
 ]
