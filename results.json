@@ -219,6 +219,12 @@
     "teams": "spanien saudi-arabien",
     "home": 5,
     "away": 0,
+    "status": "finished"
+  },
+  {
+    "teams": "belgien iran",
+    "home": 0,
+    "away": 0,
     "status": "live"
   }
 ]
