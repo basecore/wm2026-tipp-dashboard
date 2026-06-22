@@ -230,7 +230,13 @@
   {
     "teams": "uruguay cape verde islands",
     "home": 2,
-    "away": 1,
+    "away": 2,
+    "status": "finished"
+  },
+  {
+    "teams": "neuseeland ägypten",
+    "home": 1,
+    "away": 0,
     "status": "live"
   }
 ]
