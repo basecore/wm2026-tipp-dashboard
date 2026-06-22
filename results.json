@@ -241,6 +241,12 @@
   },
   {
     "teams": "argentinien österreich",
+    "home": 2,
+    "away": 0,
+    "status": "finished"
+  },
+  {
+    "teams": "frankreich irak",
     "home": 1,
     "away": 0,
     "status": "live"
