@@ -254,7 +254,13 @@
   {
     "teams": "norwegen senegal",
     "home": 3,
-    "away": 1,
-    "status": "live"
+    "away": 2,
+    "status": "finished"
+  },
+  {
+    "teams": "jordanien algerien",
+    "home": 1,
+    "away": 2,
+    "status": "finished"
   }
 ]
