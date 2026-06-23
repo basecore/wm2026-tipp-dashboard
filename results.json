@@ -247,8 +247,14 @@
   },
   {
     "teams": "frankreich irak",
-    "home": 1,
+    "home": 3,
     "away": 0,
+    "status": "finished"
+  },
+  {
+    "teams": "norwegen senegal",
+    "home": 3,
+    "away": 1,
     "status": "live"
   }
 ]
