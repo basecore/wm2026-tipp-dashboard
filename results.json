@@ -268,5 +268,11 @@
     "home": 5,
     "away": 0,
     "status": "finished"
+  },
+  {
+    "teams": "england ghana",
+    "home": 0,
+    "away": 0,
+    "status": "finished"
   }
 ]
