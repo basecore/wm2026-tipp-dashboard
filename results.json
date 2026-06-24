@@ -289,14 +289,14 @@
   },
   {
     "teams": "schweiz kanada",
-    "home": 0,
-    "away": 0,
-    "status": "live"
+    "home": 2,
+    "away": 1,
+    "status": "finished"
   },
   {
     "teams": "bosnien-herzegowina katar",
-    "home": 2,
+    "home": 3,
     "away": 1,
-    "status": "live"
+    "status": "finished"
   }
 ]
