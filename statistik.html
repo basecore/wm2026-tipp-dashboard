@@ -22,6 +22,19 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
 .kpi-val{font-size:36px;font-weight:900;line-height:1}
 .kpi-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:6px}
 .kpi-sub{font-size:10px;color:var(--muted);margin-top:4px}
+/* ── Kicktipp-Punkte KPIs ── */
+.kpi-pts{background:linear-gradient(180deg,#1a1f2e,#1e2640);border:1px solid rgba(243,184,59,.35);border-radius:18px;padding:18px 14px;text-align:center}
+.kpi-pts .kpi-val{color:var(--gold)}
+.pts-banner{background:linear-gradient(135deg,rgba(243,184,59,.08),rgba(103,164,255,.06));border:1px solid rgba(243,184,59,.25);border-radius:18px;padding:20px 24px;margin:0 0 24px;display:flex;flex-wrap:wrap;gap:20px;align-items:center}
+.pts-banner-main{font-size:42px;font-weight:900;color:var(--gold);line-height:1}
+.pts-banner-info{flex:1;min-width:180px}
+.pts-banner-info h3{font-size:14px;font-weight:800;margin:0 0 6px;color:var(--text)}
+.pts-banner-info p{font-size:12px;color:var(--muted);margin:0;line-height:1.5}
+.pts-breakdown{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px}
+.pts-breakdown span{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
+.pts-t{background:rgba(126,239,192,.12);color:var(--lightgreen)}
+.pts-d{background:rgba(103,164,255,.12);color:var(--blue)}
+.pts-e{background:rgba(243,184,59,.12);color:var(--gold)}
 .sec-title{font-size:18px;font-weight:800;margin:32px 0 14px;display:flex;align-items:center;gap:10px}
 .sec-title::before{content:'';display:block;width:4px;height:22px;border-radius:2px;background:var(--gold)}
 .chart-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:18px;margin-bottom:28px}
@@ -41,6 +54,13 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
 .badge.wrong{background:rgba(255,93,115,.12);color:var(--red)}
 .badge.pending{background:rgba(168,180,207,.1);color:var(--muted)}
 .badge.ratio{background:rgba(103,164,255,.13);color:var(--blue)}
+/* Punkte-Badges */
+.pts-badge{display:inline-block;min-width:28px;text-align:center;padding:3px 8px;border-radius:8px;font-size:13px;font-weight:900}
+.pts-0{background:rgba(255,93,115,.1);color:var(--red)}
+.pts-2{background:rgba(126,239,192,.1);color:var(--lightgreen)}
+.pts-3{background:rgba(103,164,255,.12);color:var(--blue)}
+.pts-4{background:rgba(243,184,59,.15);color:var(--gold)}
+.pts-open{background:rgba(168,180,207,.08);color:var(--muted)}
 .entry-section{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:18px;padding:22px;margin-bottom:28px}
 .entry-section h3{font-size:15px;font-weight:800;margin:0 0 14px}
 .entry-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
@@ -60,6 +80,13 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
 .src-badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;background:rgba(73,210,140,.12);color:var(--green);border:1px solid rgba(73,210,140,.25);margin-bottom:14px}
 .footer{margin-top:30px;padding:16px 0 10px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
 .footer a{color:var(--blue);text-decoration:none;font-weight:700}
+/* Punkteregel-Box */
+.rule-box{background:rgba(42,53,80,.35);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:20px;font-size:12px;color:var(--muted);line-height:1.7}
+.rule-box strong{color:var(--text)}
+.rule-table{border-collapse:collapse;margin-top:8px;font-size:12px}
+.rule-table th,.rule-table td{padding:5px 14px;text-align:center;border:1px solid var(--line)}
+.rule-table th{color:var(--muted);font-weight:700;font-size:11px}
+.rule-table td{color:var(--text);font-weight:800}
 @media(max-width:720px){
   .chart-grid{grid-template-columns:1fr}
   .chart-card.full .chart-wrap{height:260px}
@@ -73,20 +100,57 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
 
   <div class="hero">
     <div class="kicker">📈 WM 2026 · Prognose-Auswertung</div>
-    <h1 class="title">Statistiken &<br>Trefferquoten</h1>
-    <p class="sub">Exact-Score, Tendenz, Torverhältnis, Over/Under, BTTS — Ergebnisse direkt aus <strong>results.json</strong>, alle Werte ohne Hover sichtbar.</p>
+    <h1 class="title">Statistiken &<br>Kicktipp-Punkte</h1>
+    <p class="sub">Exact-Score, Tendenz, Torverhältnis, Over/Under, BTTS + <strong>Kicktipp-Punkte</strong> je Tipp — Ergebnisse direkt aus <strong>results.json</strong>.</p>
     <a class="back-btn" href="index.html">← Zurück zum Spielplan</a>
   </div>
 
   <div id="srcBadge" class="src-badge">⏳ Lade results.json…</div>
 
+  <!-- Kicktipp-Regelübersicht -->
+  <div class="rule-box">
+    <strong>🏆 Kicktipp-Punkteregel (Turniermodus – neutrale Plätze)</strong><br>
+    <table class="rule-table">
+      <thead><tr><th>Kategorie</th><th>Tendenz</th><th>Tordifferenz</th><th>Exaktes Ergebnis</th></tr></thead>
+      <tbody>
+        <tr><td>Sieg</td><td style="color:var(--lightgreen)">2 Pkt</td><td style="color:var(--blue)">3 Pkt</td><td style="color:var(--gold)">4 Pkt</td></tr>
+        <tr><td>Unentschieden</td><td colspan="2" style="color:var(--blue)">3 Pkt</td><td style="color:var(--gold)">4 Pkt</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Kicktipp-Punkte-Banner -->
+  <div class="pts-banner">
+    <div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.1em;font-weight:700">Gesamtpunkte</div>
+      <div class="pts-banner-main" id="ptsBannerTotal">—</div>
+    </div>
+    <div class="pts-banner-info">
+      <h3>Kicktipp-Punkte aus Prognosen</h3>
+      <p>Punkte für alle bewerteten Spiele nach Kicktipp-Turnierregel.<br>
+         Max. erreichbar: <span id="ptsMax">—</span> Pkt (<span id="ptsEvaluated">—</span> Spiele bewertet)</p>
+      <div class="pts-breakdown">
+        <span class="pts-e">✅ Exakt (4 Pkt): <span id="ptsCntExact">—</span></span>
+        <span class="pts-d">🎯 Tordiff. (3 Pkt): <span id="ptsCntDiff">—</span></span>
+        <span class="pts-t">🟢 Tendenz (2/3 Pkt): <span id="ptsCntTend">—</span></span>
+        <span class="pts-0">❌ Falsch (0 Pkt): <span id="ptsCntWrong">—</span></span>
+      </div>
+    </div>
+    <div style="text-align:center">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">⌀ Punkte/Spiel</div>
+      <div style="font-size:28px;font-weight:900;color:var(--blue)" id="ptsAvg">—</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">Max: 4.0</div>
+    </div>
+  </div>
+
   <!-- KPIs -->
   <div class="kpi-grid" id="kpiGrid">
-    <div class="kpi"><div class="kpi-val" id="kpiTotal" style="color:var(--blue)">—</div><div class="kpi-label">Ausgewertet</div><div class="kpi-sub">von 72 Spielen</div></div>
-    <div class="kpi"><div class="kpi-val" id="kpiExact" style="color:var(--green)">—</div><div class="kpi-label">Exact Score ✓</div><div class="kpi-sub">Prognose = Ergebnis</div></div>
+    <div class="kpi"><div class="kpi-val" id="kpiTotal" style="color:var(--blue)">—</div><div class="kpi-label">Ausgewertet</div><div class="kpi-sub">von 48 Spielen</div></div>
+    <div class="kpi-pts"><div class="kpi-val" id="kpiPoints">—</div><div class="kpi-label">🏆 Kicktipp-Punkte</div><div class="kpi-sub">Gesamt erzielt</div></div>
+    <div class="kpi"><div class="kpi-val" id="kpiExact" style="color:var(--green)">—</div><div class="kpi-label">Exact Score ✓</div><div class="kpi-sub">4 Punkte (Ergebnis)</div></div>
     <div class="kpi"><div class="kpi-val" id="kpiTendency" style="color:var(--lightgreen)">—</div><div class="kpi-label">Tendenz ✓</div><div class="kpi-sub">Richtiger Sieger</div></div>
-    <div class="kpi"><div class="kpi-val" id="kpiRatio" style="color:var(--blue)">—</div><div class="kpi-label">Torverhältnis ✓</div><div class="kpi-sub">Mehr/Weniger/Gleich</div></div>
-    <div class="kpi"><div class="kpi-val" id="kpiWrong" style="color:var(--red)">—</div><div class="kpi-label">Falsch ✗</div><div class="kpi-sub">Falsche Tendenz</div></div>
+    <div class="kpi"><div class="kpi-val" id="kpiRatio" style="color:var(--blue)">—</div><div class="kpi-label">Tordifferenz ✓</div><div class="kpi-sub">3 Punkte (Tordiff.)</div></div>
+    <div class="kpi"><div class="kpi-val" id="kpiWrong" style="color:var(--red)">—</div><div class="kpi-label">Falsch ✗</div><div class="kpi-sub">0 Punkte</div></div>
     <div class="kpi"><div class="kpi-val" id="kpiOver" style="color:var(--violet)">—</div><div class="kpi-label">Over/Under ✓</div><div class="kpi-sub">2.5-Tore korrekt</div></div>
     <div class="kpi"><div class="kpi-val" id="kpiBtts" style="color:var(--gold)">—</div><div class="kpi-label">BTTS ✓</div><div class="kpi-sub">Beide treffen</div></div>
   </div>
@@ -103,6 +167,20 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
   </div>
 
   <!-- CHARTS -->
+  <div class="sec-title">🏆 Kicktipp-Punkte Analyse</div>
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>📊 Punkte-Verteilung nach Kategorie</h3>
+      <div class="chart-wrap"><canvas id="chartPoints"></canvas></div>
+      <p class="note">Anzahl Spiele je Punktkategorie (0/2/3/4 Pkt)</p>
+    </div>
+    <div class="chart-card">
+      <h3>📈 Kumulierte Punkte im Turnierverlauf</h3>
+      <div class="chart-wrap"><canvas id="chartPointsCumul"></canvas></div>
+      <p class="note">Wie entwickeln sich die Kicktipp-Punkte über die Spiele?</p>
+    </div>
+  </div>
+
   <div class="sec-title">📊 Prognose-Genauigkeit</div>
   <div class="chart-grid">
     <div class="chart-card">
@@ -141,6 +219,11 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
       <div class="chart-wrap"><canvas id="chartConfAccuracy"></canvas></div>
       <p class="note">Kalibrierung: Sehr hoch sollte ≥ 75% Treffer liefern</p>
     </div>
+    <div class="chart-card">
+      <h3>🏆 Ø Kicktipp-Punkte nach Confidence-Stufe</h3>
+      <div class="chart-wrap"><canvas id="chartConfPoints"></canvas></div>
+      <p class="note">Durchschnittliche Punkte je Confidence-Niveau</p>
+    </div>
     <div class="chart-card full">
       <h3>📊 Trefferquote nach Gruppe (Tendenz %)</h3>
       <div class="chart-wrap"><canvas id="chartGroups"></canvas></div>
@@ -160,31 +243,60 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
   <div class="sec-title">📋 Alle Ergebnisse im Detail</div>
   <div class="filter-bar">
     <button class="fbtn active" onclick="filterTable('all',this)">Alle</button>
-    <button class="fbtn" onclick="filterTable('exact',this)">✅ Exact</button>
-    <button class="fbtn" onclick="filterTable('tendency',this)">🟢 Tendenz</button>
-    <button class="fbtn" onclick="filterTable('wrong',this)">❌ Falsch</button>
-    <button class="fbtn" onclick="filterTable('ratio_only',this)">⚖️ Nur Torverh. ✓</button>
+    <button class="fbtn" onclick="filterTable('exact',this)">✅ Exact (4 Pkt)</button>
+    <button class="fbtn" onclick="filterTable('diff',this)">🎯 Tordiff. (3 Pkt)</button>
+    <button class="fbtn" onclick="filterTable('tendency',this)">🟢 Tendenz (2/3 Pkt)</button>
+    <button class="fbtn" onclick="filterTable('wrong',this)">❌ Falsch (0 Pkt)</button>
     <button class="fbtn" onclick="filterTable('pending',this)">⏳ Ausstehend</button>
   </div>
   <div style="overflow-x:auto">
     <table class="rtbl" id="resultTable">
       <thead><tr>
         <th>#</th><th>Datum</th><th>Gr.</th><th>Spiel</th>
-        <th>Prognose</th><th>Ergebnis</th><th>Status</th>
-        <th>Tendenz</th><th>Torverh.</th><th>Over 2.5</th><th>BTTS</th><th>Conf.</th>
+        <th>Prognose</th><th>Ergebnis</th><th>Kategorie</th>
+        <th style="color:var(--gold)">Pkt</th>
+        <th>Tendenz</th><th>Tordiff.</th><th>Exakt</th>
+        <th>Over 2.5</th><th>BTTS</th><th>Conf.</th>
       </tr></thead>
       <tbody id="resultBody"></tbody>
     </table>
   </div>
 
   <div class="footer">
-    <span>WM 2026 Prognose-Dashboard · KI-gestützt · <span style="color:var(--gold)">v3.4</span></span>
+    <span>WM 2026 Prognose-Dashboard · KI-gestützt · <span style="color:var(--gold)">v3.5</span></span>
     <a href="index.html">← Zum Spielplan</a>
   </div>
 </div>
 
 <script>
 Chart.register(ChartDataLabels);
+
+// ─── KICKTIPP-PUNKTEREGEL (Turniermodus) ──────────────────────────────────────
+// Sieg:          Tendenz=2, Tordifferenz=3, Exakt=4
+// Unentschieden: Tendenz=3, Tordifferenz=3 (zusammengefasst), Exakt=4
+function calcKicktippPoints(pred, actual) {
+  if (!actual) return null;
+  const ps = getScore(pred), as = getScore(actual);
+  if (!ps || !as) return null;
+
+  const tendP = tendency(ps), tendA = tendency(as);
+  const isDrawA = tendA === 'D';
+
+  // Falsche Tendenz → 0 Punkte
+  if (tendP !== tendA) return { points: 0, cat: 'wrong' };
+
+  // Exaktes Ergebnis → 4 Punkte
+  if (ps.a === as.a && ps.b === as.b) return { points: 4, cat: 'exact' };
+
+  // Tordifferenz korrekt (nur bei Sieg sinnvoll, Unentschieden immer 0-Diff)
+  if (!isDrawA) {
+    const diffP = ps.a - ps.b, diffA = as.a - as.b;
+    if (diffP === diffA) return { points: 3, cat: 'diff' };
+  }
+
+  // Nur Tendenz richtig
+  return { points: isDrawA ? 3 : 2, cat: 'tendency' };
+}
 
 const MATCHES = [
   {id:1,  gr:"A", date:"11.06", home:"Mexiko",         away:"Südafrika",            teams:"mexiko südafrika",           pred:"2:0", over:54.9, btts:55.9, conf:"Sehr hoch"},
@@ -237,13 +349,11 @@ const MATCHES = [
   {id:48, gr:"L", date:"24.06", home:"Kroatien",       away:"Panama",                teams:"kroatien panama",             pred:"2:0", over:0,    btts:0,    conf:"Sehr hoch"},
 ];
 
-// Ergebnisse aus results.json + manuelle Overrides aus localStorage
-let jsonResults = {};   // aus results.json (teams-key → "H:A")
-let overrides  = JSON.parse(localStorage.getItem('wm26_overrides') || '{}'); // id-key
+let jsonResults = {};
+let overrides  = {};
 let charts = {};
 let tableFilter = 'all';
 
-// ─── results.json LADEN ──────────────────────────────────────────────────────
 function loadResultsJson(){
   fetch('results.json?nocache='+Date.now())
     .then(r=>r.json())
@@ -259,20 +369,17 @@ function loadResultsJson(){
       refresh();
     })
     .catch(()=>{
-      document.getElementById('srcBadge').textContent='⚠️ results.json nicht ladbar – nur localStorage';
+      document.getElementById('srcBadge').textContent='⚠️ results.json nicht ladbar – nur manuelle Einträge';
       document.getElementById('srcBadge').style.background='rgba(255,93,115,.12)';
       document.getElementById('srcBadge').style.color='var(--red)';
       refresh();
     });
 }
 
-// Ergebnis für ein Match holen: Priorität: override > jsonResults
 function getActual(m){
   if(overrides[m.id]) return overrides[m.id];
-  // Suche in jsonResults nach teams-key (normalisiert)
   const key = m.teams;
   if(jsonResults[key]) return jsonResults[key];
-  // Fallback: alle Schlüssel durchsuchen nach Teilstring-Match
   for(const k of Object.keys(jsonResults)){
     const a=k.split(' '), b=m.teams.split(' ');
     if((a[0]===b[0]||a[1]===b[0]) && (a[0]===b[1]||a[1]===b[1])) return jsonResults[k];
@@ -327,36 +434,47 @@ function saveResult(){
   if(!score){alert('Bitte Ergebnis eingeben');return;}
   if(!getScore(score)){alert('Ungültiges Format. z.B. 2:1');return;}
   overrides[id]=score;
-  localStorage.setItem('wm26_overrides',JSON.stringify(overrides));
   document.getElementById('actualScore').value='';
   refresh();
 }
 function clearOverrides(){
   if(confirm('Alle manuellen Overrides löschen? (results.json-Daten bleiben erhalten)')){
-    overrides={};localStorage.removeItem('wm26_overrides');refresh();
+    overrides={};refresh();
   }
 }
 
 // ─── STATS ────────────────────────────────────────────────────────────────────
 function computeStats(){
-  let exact=0,tendency_=0,wrong=0,pending=0;
+  let exact=0,tendencyOnly=0,diffOnly=0,wrong=0,pending=0;
   let ratioRight=0,ratioTotal=0;
   let overRight=0,overTotal=0,bttsRight=0,bttsTotal=0;
   let totalPredGoals=0,totalActualGoals=0,goalCount=0;
-  const confBuckets={'Sehr hoch':{right:0,total:0},'Hoch':{right:0,total:0},'Mittel':{right:0,total:0},'Niedrig':{right:0,total:0}};
-  const groupStats={}, timeline=[];
+  let totalPoints=0, maxPoints=0;
+  const confBuckets={'Sehr hoch':{right:0,total:0,pts:0},'Hoch':{right:0,total:0,pts:0},'Mittel':{right:0,total:0,pts:0},'Niedrig':{right:0,total:0,pts:0}};
+  const groupStats={}, timeline=[], ptsByMatch=[];
 
   MATCHES.forEach(m=>{
     const actual=getActual(m);
     const status=getStatus(m.pred,actual);
+    const ktResult=calcKicktippPoints(m.pred,actual);
     if(status==='pending'){pending++;return;}
+
+    maxPoints += 4; // max per game
     if(!groupStats[m.gr]) groupStats[m.gr]={right:0,total:0};
     groupStats[m.gr].total++;
     const ps=getScore(m.pred),as=getScore(actual);
     totalPredGoals+=ps.a+ps.b; totalActualGoals+=as.a+as.b; goalCount++;
-    if(status==='exact'){exact++;groupStats[m.gr].right++;}
-    else if(status==='tendency'){tendency_++;groupStats[m.gr].right++;}
+
+    const pts = ktResult ? ktResult.points : 0;
+    const cat = ktResult ? ktResult.cat : 'wrong';
+    totalPoints += pts;
+    ptsByMatch.push(pts);
+
+    if(cat==='exact'){exact++;groupStats[m.gr].right++;}
+    else if(cat==='diff'){diffOnly++;groupStats[m.gr].right++;}
+    else if(cat==='tendency'){tendencyOnly++;groupStats[m.gr].right++;}
     else{wrong++;}
+
     const rc=goalRatioCorrect(m.pred,actual);
     if(rc!==null){ratioTotal++;if(rc)ratioRight++;}
     if(m.over>0){
@@ -365,11 +483,14 @@ function computeStats(){
     }
     if(confBuckets[m.conf]){
       confBuckets[m.conf].total++;
-      if(status==='exact'||status==='tendency') confBuckets[m.conf].right++;
+      confBuckets[m.conf].pts += pts;
+      if(cat==='exact'||cat==='diff'||cat==='tendency') confBuckets[m.conf].right++;
     }
-    timeline.push({status});
+    timeline.push({status:cat});
   });
-  return {exact,tendency:tendency_,wrong,pending,total:exact+tendency_+wrong,
+  const evaluated = exact+diffOnly+tendencyOnly+wrong;
+  return {exact,diffOnly,tendencyOnly,wrong,pending,total:evaluated,
+    totalPoints,maxPoints,ptsByMatch,
     ratioRight,ratioTotal,overRight,overTotal,bttsRight,bttsTotal,
     avgPredGoals:goalCount?totalPredGoals/goalCount:0,
     avgActualGoals:goalCount?totalActualGoals/goalCount:0,
@@ -385,17 +506,61 @@ function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];
 function dlBar(unit='',color='#eef3ff'){return{datalabels:{display:true,anchor:'end',align:'end',color,font:{weight:'700',size:13,family:'Inter,system-ui,sans-serif'},formatter:(v)=>v>0?(v+unit):null,clip:false}};}
 function dlBarPct(){return dlBar('%','#eef3ff');}
 
+// ── Neue Charts: Punkte-Verteilung & kumulierte Punkte ──────────────────────
+function drawPointsDist(s){
+  destroyChart('pts');
+  const ctx=document.getElementById('chartPoints').getContext('2d');
+  const cats=['4 Pkt (Exakt)','3 Pkt (Tordiff.)','2-3 Pkt (Tendenz)','0 Pkt (Falsch)'];
+  const vals=[s.exact,s.diffOnly,s.tendencyOnly,s.wrong];
+  const colors=[C.gold,C.blue,C.lightgreen,C.red];
+  charts.pts=new Chart(ctx,{type:'bar',
+    data:{labels:cats,datasets:[{data:vals,backgroundColor:colors,borderRadius:12,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:30}},
+      plugins:{...pluginBase,...dlBar(' Spiele','#eef3ff')},
+      scales:{x:{ticks:{color:C.muted,font:fontDef},grid:{display:false},border:{display:false}},
+        y:{ticks:{color:C.muted,font:fontDef,stepSize:1},grid:{color:C.gridLine},border:{display:false}}}}});
+}
+
+function drawPointsCumul(s){
+  destroyChart('ptsCumul');
+  const ctx=document.getElementById('chartPointsCumul').getContext('2d');
+  let cum=0;
+  const pts=s.ptsByMatch.map(p=>{cum+=p;return cum;});
+  if(!pts.length){pts.push(0);}
+  charts.ptsCumul=new Chart(ctx,{type:'line',
+    data:{labels:s.ptsByMatch.map((_,i)=>'Sp.'+(i+1)),
+      datasets:[{label:'Kumulierte Punkte',data:pts,borderColor:C.gold,backgroundColor:'rgba(243,184,59,.08)',
+        tension:.4,fill:true,pointRadius:pts.length<25?5:3,
+        pointBackgroundColor:C.gold,pointBorderColor:'#141c2d',pointBorderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:24}},
+      plugins:{...pluginBase,datalabels:{display:()=>pts.length<=20,color:'#eef3ff',font:{weight:'700',size:10},anchor:'top',align:'top',formatter:(v)=>v}},
+      scales:{x:{ticks:{color:C.muted,font:fontDef,maxRotation:0,autoSkip:true,maxTicksLimit:12},grid:{display:false},border:{display:false}},
+        y:{ticks:{color:C.muted,font:fontDef},grid:{color:C.gridLine},border:{display:false},min:0}}}});
+}
+
+function drawConfPoints(s){
+  destroyChart('confPts');
+  const ctx=document.getElementById('chartConfPoints').getContext('2d');
+  const labels=['Sehr hoch','Hoch','Mittel','Niedrig'];
+  charts.confPts=new Chart(ctx,{type:'bar',
+    data:{labels,datasets:[{data:labels.map(l=>{const b=s.confBuckets[l];return b&&b.total?(b.pts/b.total).toFixed(2):0;}),backgroundColor:[C.green,C.blue,C.gold,C.red],borderRadius:10,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:28}},
+      plugins:{...pluginBase,datalabels:{display:true,anchor:'end',align:'end',color:'#eef3ff',font:{weight:'700',size:12},formatter:(v)=>+v>0?v+' Pkt':null}},
+      scales:{x:{ticks:{color:C.muted,font:fontDef},grid:{display:false},border:{display:false}},
+        y:{ticks:{color:C.muted,font:fontDef},grid:{color:C.gridLine},border:{display:false},min:0,max:4.5}}}});
+}
+
 function drawDonut(s){
   destroyChart('donut');
   const ctx=document.getElementById('chartDonut').getContext('2d');
-  const data=[s.exact,s.tendency,s.wrong,s.pending];
+  const data=[s.exact,s.diffOnly,s.tendencyOnly,s.wrong,s.pending];
   const total=data.reduce((a,b)=>a+b,0);
   charts.donut=new Chart(ctx,{type:'doughnut',
-    data:{labels:['Exact ✅','Tendenz 🟢','Falsch ❌','Offen ⏳'],
-      datasets:[{data,backgroundColor:[C.green,C.lightgreen,C.red,C.dark],borderColor:'#141c2d',borderWidth:3,hoverOffset:6}]},
+    data:{labels:['Exakt ✅ (4Pkt)','Tordiff. 🎯 (3Pkt)','Tendenz 🟢','Falsch ❌ (0Pkt)','Offen ⏳'],
+      datasets:[{data,backgroundColor:[C.gold,C.blue,C.lightgreen,C.red,C.dark],borderColor:'#141c2d',borderWidth:3,hoverOffset:6}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
       plugins:{...pluginBase,datalabels:{display:(ctx)=>ctx.dataset.data[ctx.dataIndex]>0,color:'#111',font:{weight:'900',size:12},formatter:(val)=>{const pct=total?Math.round(val/total*100):0;return val+'\n('+pct+'%)';},textAlign:'center'}}}});
-  document.getElementById('donutLegend').innerHTML=[[C.green,'Exact'],[C.lightgreen,'Tendenz'],[C.red,'Falsch'],[C.dark,'Offen']].map(([c,l])=>`<div class="legend-item"><div class="legend-dot" style="background:${c}"></div><span>${l}</span></div>`).join('');
+  document.getElementById('donutLegend').innerHTML=[[C.gold,'Exakt (4Pkt)'],[C.blue,'Tordiff. (3Pkt)'],[C.lightgreen,'Tendenz'],[C.red,'Falsch'],[C.dark,'Offen']].map(([c,l])=>`<div class="legend-item"><div class="legend-dot" style="background:${c}"></div><span>${l}</span></div>`).join('');
 }
 
 function drawRatio(s){
@@ -426,7 +591,9 @@ function drawGoals(s){
 
 function makeDonut(canvasId,data,colors,pct,pctColor){
   destroyChart(canvasId);
-  const ctx=document.getElementById('chart'+canvasId[0].toUpperCase()+canvasId.slice(1)).getContext('2d');
+  const elId='chart'+canvasId[0].toUpperCase()+canvasId.slice(1);
+  const el=document.getElementById(elId); if(!el) return;
+  const ctx=el.getContext('2d');
   const chart=new Chart(ctx,{type:'doughnut',
     data:{labels:['Richtig ✅','Falsch ❌'],datasets:[{data,backgroundColor:colors,borderColor:'#141c2d',borderWidth:3}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
@@ -489,7 +656,7 @@ function drawTimeline(s){
   const ctx=document.getElementById('chartTimeline').getContext('2d');
   let cum=0,pts=[];
   s.timeline.forEach((t,i)=>{
-    if(t.status==='exact'||t.status==='tendency') cum++;
+    if(t.status!=='wrong') cum++;
     pts.push(Math.round(cum/(i+1)*100));
   });
   if(!pts.length) pts=[0];
@@ -509,31 +676,63 @@ function drawTimeline(s){
 function updateKPI(s){
   const pct=(n,d)=>d?Math.round(n/d*100)+'%':'—';
   document.getElementById('kpiTotal').textContent=s.total||'0';
+  document.getElementById('kpiPoints').textContent=s.total?s.totalPoints:'—';
   document.getElementById('kpiExact').textContent=s.total?s.exact+' ('+pct(s.exact,s.total)+')':'—';
-  document.getElementById('kpiTendency').textContent=s.total?(s.exact+s.tendency)+' ('+pct(s.exact+s.tendency,s.total)+')':'—';
-  document.getElementById('kpiRatio').textContent=s.ratioTotal?s.ratioRight+' ('+pct(s.ratioRight,s.ratioTotal)+')':'—';
+  document.getElementById('kpiTendency').textContent=s.total?(s.exact+s.diffOnly+s.tendencyOnly)+' ('+pct(s.exact+s.diffOnly+s.tendencyOnly,s.total)+')':'—';
+  document.getElementById('kpiRatio').textContent=s.total?s.diffOnly+' ('+pct(s.diffOnly,s.total)+')':'—';
   document.getElementById('kpiWrong').textContent=s.total?s.wrong+' ('+pct(s.wrong,s.total)+')':'—';
   document.getElementById('kpiOver').textContent=s.overTotal?pct(s.overRight,s.overTotal):'—';
   document.getElementById('kpiBtts').textContent=s.bttsTotal?pct(s.bttsRight,s.bttsTotal):'—';
+  // Banner
+  document.getElementById('ptsBannerTotal').textContent=s.total?s.totalPoints:'—';
+  document.getElementById('ptsMax').textContent=s.maxPoints;
+  document.getElementById('ptsEvaluated').textContent=s.total;
+  document.getElementById('ptsAvg').textContent=s.total?(s.totalPoints/s.total).toFixed(2):'—';
+  document.getElementById('ptsCntExact').textContent=s.exact;
+  document.getElementById('ptsCntDiff').textContent=s.diffOnly;
+  document.getElementById('ptsCntTend').textContent=s.tendencyOnly;
+  document.getElementById('ptsCntWrong').textContent=s.wrong;
 }
 
 // ─── TABLE ────────────────────────────────────────────────────────────────────
 const confColor={'Sehr hoch':C.green,'Hoch':C.blue,'Mittel':C.gold,'Niedrig':C.red};
+
+function ptsBadge(ktResult){
+  if(!ktResult) return `<span class="pts-badge pts-open">–</span>`;
+  const p=ktResult.points;
+  const cls=p===4?'pts-4':p===3?'pts-3':p===2?'pts-2':'pts-0';
+  return `<span class="pts-badge ${cls}">${p}</span>`;
+}
+
+function catBadge(ktResult){
+  if(!ktResult) return `<span class="badge pending">⏳ Offen</span>`;
+  const map={
+    exact:`<span class="badge exact">✅ Exakt (4)</span>`,
+    diff:`<span class="badge ratio">🎯 Tordiff. (3)</span>`,
+    tendency:`<span class="badge tendency">🟢 Tendenz (2/3)</span>`,
+    wrong:`<span class="badge wrong">❌ Falsch (0)</span>`
+  };
+  return map[ktResult.cat]||`<span class="badge pending">⏳</span>`;
+}
+
 function buildTable(){
   const tbody=document.getElementById('resultBody');
   tbody.innerHTML=MATCHES.map(m=>{
     const actual=getActual(m);
-    const status=getStatus(m.pred,actual);
-    const rc=actual?goalRatioCorrect(m.pred,actual):null;
-    if(tableFilter==='ratio_only'){if(status!=='wrong'||rc!==true) return '';}
-    else if(tableFilter!=='all'&&status!==tableFilter) return '';
+    const ktResult=calcKicktippPoints(m.pred,actual);
+    const cat=ktResult?ktResult.cat:(actual?'wrong':'pending');
+    if(tableFilter==='diff'&&cat!=='diff') return '';
+    else if(tableFilter==='exact'&&cat!=='exact') return '';
+    else if(tableFilter==='tendency'&&cat!=='tendency') return '';
+    else if(tableFilter==='wrong'&&cat!=='wrong') return '';
+    else if(tableFilter==='pending'&&cat!=='pending') return '';
     const oc=actual&&m.over>0?overCorrect(m,actual):null;
     const bc=actual&&m.btts>0?bttsCorrect(m,actual):null;
     const ps=getScore(m.pred),as=getScore(actual);
     const tendOk=ps&&as?tendency(ps)===tendency(as):null;
+    const diffOk=ps&&as&&ktResult?(ktResult.cat==='diff'||ktResult.cat==='exact'):null;
+    const exactOk=ps&&as&&ktResult?ktResult.cat==='exact':null;
     const isOverride=!!overrides[m.id];
-    const statusBadge={exact:`<span class="badge exact">✅ Exact</span>`,tendency:`<span class="badge tendency">🟢 Tendenz</span>`,wrong:`<span class="badge wrong">❌ Falsch</span>`,pending:`<span class="badge pending">⏳ Offen</span>`}[status];
-    const ratioBadge=rc===null?'–':rc?`<span class="badge ratio">⚖️ ✓</span>`:`<span style="color:var(--red);font-size:12px">✗</span>`;
     return `<tr>
       <td style="color:var(--muted)">${m.id}</td>
       <td style="color:var(--muted)">${m.date}</td>
@@ -541,9 +740,11 @@ function buildTable(){
       <td style="font-size:12px">${m.home} vs ${m.away}</td>
       <td style="font-weight:800;color:var(--muted)">${m.pred}</td>
       <td style="font-weight:800;color:${actual?'var(--text)':'var(--line)'}">${actual||'–'}${isOverride?' <span style="font-size:9px;color:var(--gold)">✏️</span>':''}</td>
-      <td>${statusBadge}</td>
+      <td>${catBadge(ktResult)}</td>
+      <td style="text-align:center">${ptsBadge(ktResult)}</td>
       <td style="text-align:center">${actual?(tendOk?'✅':'❌'):'–'}</td>
-      <td style="text-align:center">${ratioBadge}</td>
+      <td style="text-align:center">${diffOk===null?'–':diffOk?'✅':'❌'}</td>
+      <td style="text-align:center">${exactOk===null?'–':exactOk?'✅':'❌'}</td>
       <td style="text-align:center">${oc===null?'–':oc?'✅':'❌'}</td>
       <td style="text-align:center">${bc===null?'–':bc?'✅':'❌'}</td>
       <td style="color:${confColor[m.conf]||C.muted};font-size:12px;font-weight:700">${m.conf}</td>
@@ -560,8 +761,11 @@ function filterTable(f,btn){
 
 function refresh(){
   const s=computeStats();
-  updateKPI(s);drawDonut(s);drawRatio(s);drawGoals(s);drawOverUnder(s);drawBtts(s);
-  drawConf(s);drawConfAccuracy(s);drawGroups(s);drawTimeline(s);buildTable();
+  updateKPI(s);
+  drawPointsDist(s);drawPointsCumul(s);drawConfPoints(s);
+  drawDonut(s);drawRatio(s);drawGoals(s);drawOverUnder(s);drawBtts(s);
+  drawConf(s);drawConfAccuracy(s);drawGroups(s);drawTimeline(s);
+  buildTable();
 }
 
 populateSelect();
