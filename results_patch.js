@@ -195,8 +195,14 @@
       kpi('❌ Fehltipps (0)',cnt.miss,     'var(--red)')+
       kpi('Trefferquote',    hr+'%',       hrCol)+
       kpi('Ø Tore/Spiel',    avg,          'var(--blue)');
+
+    /* Punkte-KPIs mit Max-Anzeige */
+    var maxPts = played * 4;
+    var ausschoepfung = played > 0 ? Math.round(totalPts / maxPts * 100) : 0;
+    var ausschoepfCol = ausschoepfung >= 65 ? 'var(--green)' : ausschoepfung >= 45 ? 'var(--gold)' : 'var(--red)';
     if(ptsEl) ptsEl.innerHTML =
-      kpi('🏆 Gesamt-Punkte', totalPts,    'var(--gold)')+
+      kpi('🏆 Gesamt-Punkte', totalPts + ' / ' + maxPts + ' max', 'var(--gold)')+
+      kpi('📊 Ausschöpfung',  played > 0 ? ausschoepfung + '%' : '–', ausschoepfCol)+
       kpi('∅ Pkt/Spiel', played>0?(totalPts/played).toFixed(2):'–', 'var(--blue)')+
       kpi('✅ Exakt',      cnt.exact,       'var(--green)')+
       kpi('🎯 Tordiff.',   cnt.tordiff,     'var(--blue)')+
