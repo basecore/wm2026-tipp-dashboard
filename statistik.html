@@ -24,7 +24,7 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
 .kpi-sub{font-size:10px;color:var(--muted);margin-top:4px}
 /* ── Kicktipp-Punkte KPIs ── */
 .kpi-pts{background:linear-gradient(180deg,#1a1f2e,#1e2640);border:1px solid rgba(243,184,59,.35);border-radius:18px;padding:18px 14px;text-align:center}
-.kpi-pts .kpi-val{color:var(--gold)}
+.kpi-pts .kpi-val{color:var(--gold);font-size:26px}
 .pts-banner{background:linear-gradient(135deg,rgba(243,184,59,.08),rgba(103,164,255,.06));border:1px solid rgba(243,184,59,.25);border-radius:18px;padding:20px 24px;margin:0 0 24px;display:flex;flex-wrap:wrap;gap:20px;align-items:center}
 .pts-banner-main{font-size:42px;font-weight:900;color:var(--gold);line-height:1}
 .pts-banner-info{flex:1;min-width:180px}
@@ -35,6 +35,7 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
 .pts-t{background:rgba(126,239,192,.12);color:var(--lightgreen)}
 .pts-d{background:rgba(103,164,255,.12);color:var(--blue)}
 .pts-e{background:rgba(243,184,59,.12);color:var(--gold)}
+.pts-0{background:rgba(255,93,115,.12);color:var(--red)}
 .sec-title{font-size:18px;font-weight:800;margin:32px 0 14px;display:flex;align-items:center;gap:10px}
 .sec-title::before{content:'';display:block;width:4px;height:22px;border-radius:2px;background:var(--gold)}
 .chart-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:18px;margin-bottom:28px}
@@ -54,6 +55,8 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
 .badge.wrong{background:rgba(255,93,115,.12);color:var(--red)}
 .badge.pending{background:rgba(168,180,207,.1);color:var(--muted)}
 .badge.ratio{background:rgba(103,164,255,.13);color:var(--blue)}
+.badge.match{background:rgba(73,210,140,.15);color:var(--green)}
+.badge.nomatch{background:rgba(255,93,115,.12);color:var(--red)}
 /* Punkte-Badges */
 .pts-badge{display:inline-block;min-width:28px;text-align:center;padding:3px 8px;border-radius:8px;font-size:13px;font-weight:900}
 .pts-0{background:rgba(255,93,115,.1);color:var(--red)}
@@ -87,6 +90,8 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
 .rule-table th,.rule-table td{padding:5px 14px;text-align:center;border:1px solid var(--line)}
 .rule-table th{color:var(--muted);font-weight:700;font-size:11px}
 .rule-table td{color:var(--text);font-weight:800}
+/* KO-Vergleich Tabellen-Wrapper */
+.ko-tbl-wrap{overflow-x:auto;margin-bottom:28px}
 @media(max-width:720px){
   .chart-grid{grid-template-columns:1fr}
   .chart-card.full .chart-wrap{height:260px}
@@ -146,7 +151,11 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
   <!-- KPIs -->
   <div class="kpi-grid" id="kpiGrid">
     <div class="kpi"><div class="kpi-val" id="kpiTotal" style="color:var(--blue)">—</div><div class="kpi-label">Ausgewertet</div><div class="kpi-sub">von 48 Spielen</div></div>
-    <div class="kpi-pts"><div class="kpi-val" id="kpiPoints">—</div><div class="kpi-label">🏆 Kicktipp-Punkte</div><div class="kpi-sub">Gesamt erzielt</div></div>
+    <div class="kpi-pts">
+      <div class="kpi-val" id="kpiPoints">—</div>
+      <div class="kpi-label">🏆 Kicktipp-Punkte</div>
+      <div class="kpi-sub">Erzielt / Max. erreichbar</div>
+    </div>
     <div class="kpi"><div class="kpi-val" id="kpiExact" style="color:var(--green)">—</div><div class="kpi-label">Exact Score ✓</div><div class="kpi-sub">4 Punkte (Ergebnis)</div></div>
     <div class="kpi"><div class="kpi-val" id="kpiTendency" style="color:var(--lightgreen)">—</div><div class="kpi-label">Tendenz ✓</div><div class="kpi-sub">Richtiger Sieger</div></div>
     <div class="kpi"><div class="kpi-val" id="kpiRatio" style="color:var(--blue)">—</div><div class="kpi-label">Tordifferenz ✓</div><div class="kpi-sub">3 Punkte (Tordiff.)</div></div>
@@ -239,7 +248,7 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
     </div>
   </div>
 
-  <!-- TABELLE -->
+  <!-- TABELLE Vorrunde -->
   <div class="sec-title">📋 Alle Ergebnisse im Detail</div>
   <div class="filter-bar">
     <button class="fbtn active" onclick="filterTable('all',this)">Alle</button>
@@ -262,8 +271,28 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
     </table>
   </div>
 
+  <!-- KO-PROGNOSE-VERGLEICH -->
+  <div class="sec-title">🏆 KO-Prognose-Vergleich: KI-Teams vs. Echte Teams</div>
+  <div class="ko-tbl-wrap">
+    <table class="rtbl" id="koCompareTable">
+      <thead><tr>
+        <th>Runde</th>
+        <th>KI-Prognose Team A</th>
+        <th>KI-Prognose Team B</th>
+        <th>Echtes Team A</th>
+        <th>Echtes Team B</th>
+        <th>Team A ✓</th>
+        <th>Team B ✓</th>
+        <th>Match</th>
+      </tr></thead>
+      <tbody id="koCompareBody">
+        <!-- wird dynamisch befüllt -->
+      </tbody>
+    </table>
+  </div>
+
   <div class="footer">
-    <span>WM 2026 Prognose-Dashboard · KI-gestützt · <span style="color:var(--gold)">v3.5</span></span>
+    <span>WM 2026 Prognose-Dashboard · KI-gestützt · <span style="color:var(--gold)">v3.6</span></span>
     <a href="index.html">← Zum Spielplan</a>
   </div>
 </div>
@@ -272,29 +301,18 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
 Chart.register(ChartDataLabels);
 
 // ─── KICKTIPP-PUNKTEREGEL (Turniermodus) ──────────────────────────────────────
-// Sieg:          Tendenz=2, Tordifferenz=3, Exakt=4
-// Unentschieden: Tendenz=3, Tordifferenz=3 (zusammengefasst), Exakt=4
 function calcKicktippPoints(pred, actual) {
   if (!actual) return null;
   const ps = getScore(pred), as = getScore(actual);
   if (!ps || !as) return null;
-
   const tendP = tendency(ps), tendA = tendency(as);
   const isDrawA = tendA === 'D';
-
-  // Falsche Tendenz → 0 Punkte
   if (tendP !== tendA) return { points: 0, cat: 'wrong' };
-
-  // Exaktes Ergebnis → 4 Punkte
   if (ps.a === as.a && ps.b === as.b) return { points: 4, cat: 'exact' };
-
-  // Tordifferenz korrekt (nur bei Sieg sinnvoll, Unentschieden immer 0-Diff)
   if (!isDrawA) {
     const diffP = ps.a - ps.b, diffA = as.a - as.b;
     if (diffP === diffA) return { points: 3, cat: 'diff' };
   }
-
-  // Nur Tendenz richtig
   return { points: isDrawA ? 3 : 2, cat: 'tendency' };
 }
 
@@ -349,6 +367,23 @@ const MATCHES = [
   {id:48, gr:"L", date:"24.06", home:"Kroatien",       away:"Panama",                teams:"kroatien panama",             pred:"2:0", over:0,    btts:0,    conf:"Sehr hoch"},
 ];
 
+// ─── KO-PROGNOSE DATEN ────────────────────────────────────────────────────────
+// KI-Prognosen der Gruppensieger/-zweiten → KO-Runde
+const KO_COMPARE = [
+  {runde:"Achtelfinale A1-B2", kiA:"Mexiko",      kiB:"Schweiz",      echtA:"", echtB:""},
+  {runde:"Achtelfinale B1-A2", kiA:"Kanada",      kiB:"Südkorea",     echtA:"", echtB:""},
+  {runde:"Achtelfinale C1-D2", kiA:"Brasilien",   kiB:"USA",          echtA:"", echtB:""},
+  {runde:"Achtelfinale D1-C2", kiA:"USA",         kiB:"Schottland",   echtA:"", echtB:""},
+  {runde:"Achtelfinale E1-F2", kiA:"Deutschland", kiB:"Niederlande",  echtA:"", echtB:""},
+  {runde:"Achtelfinale F1-E2", kiA:"Niederlande", kiB:"Deutschland",  echtA:"", echtB:""},
+  {runde:"Achtelfinale G1-H2", kiA:"Belgien",     kiB:"Uruguay",      echtA:"", echtB:""},
+  {runde:"Achtelfinale H1-G2", kiA:"Spanien",     kiB:"Ägypten",      echtA:"", echtB:""},
+  {runde:"Achtelfinale I1-J2", kiA:"Frankreich",  kiB:"Argentinien",  echtA:"", echtB:""},
+  {runde:"Achtelfinale J1-I2", kiA:"Argentinien", kiB:"Norwegen",     echtA:"", echtB:""},
+  {runde:"Achtelfinale K1-L2", kiA:"Portugal",    kiB:"England",      echtA:"", echtB:""},
+  {runde:"Achtelfinale L1-K2", kiA:"England",     kiB:"Kolumbien",    echtA:"", echtB:""},
+];
+
 let jsonResults = {};
 let overrides  = {};
 let charts = {};
@@ -361,6 +396,11 @@ function loadResultsJson(){
       data.forEach(r=>{
         if(r.status==='finished'){
           jsonResults[r.teams] = r.home+':'+r.away;
+        }
+        // KO: echte Teams aus results.json befüllen falls vorhanden
+        if(r.phase && r.phase!=='group' && r.teamA && r.teamB){
+          const idx = KO_COMPARE.findIndex(k=>k.runde===r.runde);
+          if(idx>=0){ KO_COMPARE[idx].echtA=r.teamA; KO_COMPARE[idx].echtB=r.teamB; }
         }
       });
       document.getElementById('srcBadge').textContent =
@@ -459,7 +499,7 @@ function computeStats(){
     const ktResult=calcKicktippPoints(m.pred,actual);
     if(status==='pending'){pending++;return;}
 
-    maxPoints += 4; // max per game
+    maxPoints += 4;
     if(!groupStats[m.gr]) groupStats[m.gr]={right:0,total:0};
     groupStats[m.gr].total++;
     const ps=getScore(m.pred),as=getScore(actual);
@@ -506,7 +546,6 @@ function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];
 function dlBar(unit='',color='#eef3ff'){return{datalabels:{display:true,anchor:'end',align:'end',color,font:{weight:'700',size:13,family:'Inter,system-ui,sans-serif'},formatter:(v)=>v>0?(v+unit):null,clip:false}};}
 function dlBarPct(){return dlBar('%','#eef3ff');}
 
-// ── Neue Charts: Punkte-Verteilung & kumulierte Punkte ──────────────────────
 function drawPointsDist(s){
   destroyChart('pts');
   const ctx=document.getElementById('chartPoints').getContext('2d');
@@ -623,153 +662,4 @@ function drawConf(s){
     options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:28}},
       plugins:{...pluginBase,...dlBar(' Spiele','#eef3ff')},
       scales:{x:{ticks:{color:C.muted,font:fontDef},grid:{display:false},border:{display:false}},
-        y:{ticks:{color:C.muted,font:fontDef,stepSize:1},grid:{color:C.gridLine},border:{display:false}}}}});
-}
-
-function drawConfAccuracy(s){
-  destroyChart('confAcc');
-  const ctx=document.getElementById('chartConfAccuracy').getContext('2d');
-  const labels=['Sehr hoch','Hoch','Mittel','Niedrig'];
-  charts.confAcc=new Chart(ctx,{type:'bar',
-    data:{labels,datasets:[{data:labels.map(l=>{const b=s.confBuckets[l];return b&&b.total?Math.round(b.right/b.total*100):0;}),backgroundColor:[C.green,C.blue,C.gold,C.red],borderRadius:10,borderSkipped:false}]},
-    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:28}},
-      plugins:{...pluginBase,...dlBarPct()},
-      scales:{x:{ticks:{color:C.muted,font:fontDef},grid:{display:false},border:{display:false}},
-        y:{ticks:{color:C.muted,font:fontDef,callback:v=>v+'%'},grid:{color:C.gridLine},border:{display:false},min:0,max:100}}}});
-}
-
-function drawGroups(s){
-  destroyChart('groups');
-  const ctx=document.getElementById('chartGroups').getContext('2d');
-  const grps=Object.keys(s.groupStats).sort();
-  const vals=grps.map(g=>{const gs=s.groupStats[g];return gs.total?Math.round(gs.right/gs.total*100):0;});
-  charts.groups=new Chart(ctx,{type:'bar',
-    data:{labels:grps.map(g=>'Gr. '+g),datasets:[{data:vals,backgroundColor:vals.map(v=>v>=70?C.green:v>=50?C.blue:v>=33?C.gold:C.red),borderRadius:10,borderSkipped:false}]},
-    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:28}},
-      plugins:{...pluginBase,...dlBarPct()},
-      scales:{x:{ticks:{color:C.muted,font:fontDef},grid:{display:false},border:{display:false}},
-        y:{ticks:{color:C.muted,font:fontDef,callback:v=>v+'%'},grid:{color:C.gridLine},border:{display:false},min:0,max:110}}}});
-}
-
-function drawTimeline(s){
-  destroyChart('timeline');
-  const ctx=document.getElementById('chartTimeline').getContext('2d');
-  let cum=0,pts=[];
-  s.timeline.forEach((t,i)=>{
-    if(t.status!=='wrong') cum++;
-    pts.push(Math.round(cum/(i+1)*100));
-  });
-  if(!pts.length) pts=[0];
-  charts.timeline=new Chart(ctx,{type:'line',
-    data:{labels:s.timeline.map((_,i)=>'Sp.'+(i+1)),
-      datasets:[{label:'Trefferquote %',data:pts,borderColor:C.gold,backgroundColor:'rgba(243,184,59,.08)',
-        tension:.4,fill:true,pointRadius:pts.length<25?5:3,
-        pointBackgroundColor:pts.map(v=>v>=60?C.green:v>=40?C.gold:C.red),
-        pointBorderColor:'#141c2d',pointBorderWidth:2}]},
-    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:24}},
-      plugins:{...pluginBase,datalabels:{display:()=>pts.length<=20,color:'#eef3ff',font:{weight:'700',size:10},anchor:'top',align:'top',formatter:(v)=>v+'%'}},
-      scales:{x:{ticks:{color:C.muted,font:fontDef,maxRotation:0,autoSkip:true,maxTicksLimit:12},grid:{display:false},border:{display:false}},
-        y:{ticks:{color:C.muted,font:fontDef,callback:v=>v+'%'},grid:{color:C.gridLine},border:{display:false},min:0,max:110}}}});
-}
-
-// ─── KPI ──────────────────────────────────────────────────────────────────────
-function updateKPI(s){
-  const pct=(n,d)=>d?Math.round(n/d*100)+'%':'—';
-  document.getElementById('kpiTotal').textContent=s.total||'0';
-  document.getElementById('kpiPoints').textContent=s.total?s.totalPoints:'—';
-  document.getElementById('kpiExact').textContent=s.total?s.exact+' ('+pct(s.exact,s.total)+')':'—';
-  document.getElementById('kpiTendency').textContent=s.total?(s.exact+s.diffOnly+s.tendencyOnly)+' ('+pct(s.exact+s.diffOnly+s.tendencyOnly,s.total)+')':'—';
-  document.getElementById('kpiRatio').textContent=s.total?s.diffOnly+' ('+pct(s.diffOnly,s.total)+')':'—';
-  document.getElementById('kpiWrong').textContent=s.total?s.wrong+' ('+pct(s.wrong,s.total)+')':'—';
-  document.getElementById('kpiOver').textContent=s.overTotal?pct(s.overRight,s.overTotal):'—';
-  document.getElementById('kpiBtts').textContent=s.bttsTotal?pct(s.bttsRight,s.bttsTotal):'—';
-  // Banner
-  document.getElementById('ptsBannerTotal').textContent=s.total?s.totalPoints:'—';
-  document.getElementById('ptsMax').textContent=s.maxPoints;
-  document.getElementById('ptsEvaluated').textContent=s.total;
-  document.getElementById('ptsAvg').textContent=s.total?(s.totalPoints/s.total).toFixed(2):'—';
-  document.getElementById('ptsCntExact').textContent=s.exact;
-  document.getElementById('ptsCntDiff').textContent=s.diffOnly;
-  document.getElementById('ptsCntTend').textContent=s.tendencyOnly;
-  document.getElementById('ptsCntWrong').textContent=s.wrong;
-}
-
-// ─── TABLE ────────────────────────────────────────────────────────────────────
-const confColor={'Sehr hoch':C.green,'Hoch':C.blue,'Mittel':C.gold,'Niedrig':C.red};
-
-function ptsBadge(ktResult){
-  if(!ktResult) return `<span class="pts-badge pts-open">–</span>`;
-  const p=ktResult.points;
-  const cls=p===4?'pts-4':p===3?'pts-3':p===2?'pts-2':'pts-0';
-  return `<span class="pts-badge ${cls}">${p}</span>`;
-}
-
-function catBadge(ktResult){
-  if(!ktResult) return `<span class="badge pending">⏳ Offen</span>`;
-  const map={
-    exact:`<span class="badge exact">✅ Exakt (4)</span>`,
-    diff:`<span class="badge ratio">🎯 Tordiff. (3)</span>`,
-    tendency:`<span class="badge tendency">🟢 Tendenz (2/3)</span>`,
-    wrong:`<span class="badge wrong">❌ Falsch (0)</span>`
-  };
-  return map[ktResult.cat]||`<span class="badge pending">⏳</span>`;
-}
-
-function buildTable(){
-  const tbody=document.getElementById('resultBody');
-  tbody.innerHTML=MATCHES.map(m=>{
-    const actual=getActual(m);
-    const ktResult=calcKicktippPoints(m.pred,actual);
-    const cat=ktResult?ktResult.cat:(actual?'wrong':'pending');
-    if(tableFilter==='diff'&&cat!=='diff') return '';
-    else if(tableFilter==='exact'&&cat!=='exact') return '';
-    else if(tableFilter==='tendency'&&cat!=='tendency') return '';
-    else if(tableFilter==='wrong'&&cat!=='wrong') return '';
-    else if(tableFilter==='pending'&&cat!=='pending') return '';
-    const oc=actual&&m.over>0?overCorrect(m,actual):null;
-    const bc=actual&&m.btts>0?bttsCorrect(m,actual):null;
-    const ps=getScore(m.pred),as=getScore(actual);
-    const tendOk=ps&&as?tendency(ps)===tendency(as):null;
-    const diffOk=ps&&as&&ktResult?(ktResult.cat==='diff'||ktResult.cat==='exact'):null;
-    const exactOk=ps&&as&&ktResult?ktResult.cat==='exact':null;
-    const isOverride=!!overrides[m.id];
-    return `<tr>
-      <td style="color:var(--muted)">${m.id}</td>
-      <td style="color:var(--muted)">${m.date}</td>
-      <td><span style="background:rgba(103,164,255,.15);color:var(--blue);padding:2px 7px;border-radius:999px;font-size:11px;font-weight:800">${m.gr}</span></td>
-      <td style="font-size:12px">${m.home} vs ${m.away}</td>
-      <td style="font-weight:800;color:var(--muted)">${m.pred}</td>
-      <td style="font-weight:800;color:${actual?'var(--text)':'var(--line)'}">${actual||'–'}${isOverride?' <span style="font-size:9px;color:var(--gold)">✏️</span>':''}</td>
-      <td>${catBadge(ktResult)}</td>
-      <td style="text-align:center">${ptsBadge(ktResult)}</td>
-      <td style="text-align:center">${actual?(tendOk?'✅':'❌'):'–'}</td>
-      <td style="text-align:center">${diffOk===null?'–':diffOk?'✅':'❌'}</td>
-      <td style="text-align:center">${exactOk===null?'–':exactOk?'✅':'❌'}</td>
-      <td style="text-align:center">${oc===null?'–':oc?'✅':'❌'}</td>
-      <td style="text-align:center">${bc===null?'–':bc?'✅':'❌'}</td>
-      <td style="color:${confColor[m.conf]||C.muted};font-size:12px;font-weight:700">${m.conf}</td>
-    </tr>`;
-  }).join('');
-}
-
-function filterTable(f,btn){
-  tableFilter=f;
-  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  buildTable();
-}
-
-function refresh(){
-  const s=computeStats();
-  updateKPI(s);
-  drawPointsDist(s);drawPointsCumul(s);drawConfPoints(s);
-  drawDonut(s);drawRatio(s);drawGoals(s);drawOverUnder(s);drawBtts(s);
-  drawConf(s);drawConfAccuracy(s);drawGroups(s);drawTimeline(s);
-  buildTable();
-}
-
-populateSelect();
-loadResultsJson();
-</script>
-</body>
-</html>
+        y:{ticks:{color:C.muted,font:fontDef,stepSize:1},grid:{color:C.gridLine},bor
