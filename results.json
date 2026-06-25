@@ -314,13 +314,13 @@
   {
     "teams": "tschechien mexiko",
     "home": 0,
-    "away": 0,
-    "status": "live"
+    "away": 3,
+    "status": "finished"
   },
   {
     "teams": "südafrika südkorea",
-    "home": 0,
+    "home": 1,
     "away": 0,
-    "status": "live"
+    "status": "finished"
   }
 ]
