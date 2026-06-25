@@ -2859,7 +2859,7 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
 </div>
 <script>
 function switchTab(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById('tab-'+id).classList.add('active');document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
-// Statistik wird beim Seitenstart initialisiert
+/* stats werden beim Start gerendert */
 let activeGroup='';
 function filterGroup(btn,g){activeGroup=g;document.querySelectorAll('.gtab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');filterMatches();}
 function filterMatches(){const q=document.getElementById('tsearch').value.toLowerCase();document.querySelectorAll('.mcard').forEach(c=>{const grp=c.dataset.group;const teams=c.dataset.teams;const show=(!activeGroup||grp===activeGroup)&&(!q||teams.includes(q));c.style.display=show?'':'none';});}
@@ -3223,57 +3223,58 @@ const KO_COMPARE = [
   {runde:"Achtelfinale L1-K2", kiA:"England",     kiB:"Kolumbien",    echtA:"", echtB:""},
 ];
 
-const RESULTS_INLINE = {
-  "mexiko südafrika": "2:0",
-  "südkorea tschechien": "2:1",
-  "kanada bosnien-herzegowina": "1:1",
-  "usa paraguay": "4:1",
-  "katar schweiz": "1:1",
-  "brasilien marokko": "1:1",
-  "haiti schottland": "0:1",
-  "australien türkei": "2:0",
-  "deutschland curaçao": "7:1",
-  "niederlande japan": "2:2",
-  "elfenbeinküste ecuador": "1:0",
-  "schweden tunesien": "5:1",
-  "spanien kap verde": "0:0",
-  "belgien ägypten": "1:1",
-  "saudi-arabien uruguay": "1:1",
-  "iran neuseeland": "2:2",
-  "frankreich senegal": "3:1",
-  "irak norwegen": "1:4",
-  "argentinien algerien": "3:0",
-  "österreich jordanien": "3:1",
-  "portugal dr kongo": "1:1",
-  "england kroatien": "4:2",
-  "ghana panama": "1:0",
-  "usbekistan kolumbien": "1:3",
-  "tschechien südafrika": "1:1",
-  "schweiz bosnien-herzegowina": "4:1",
-  "kanada katar": "6:0",
-  "mexiko südkorea": "1:0",
-  "usa australien": "2:0",
-  "schottland marokko": "0:1",
-  "brasilien haiti": "3:0",
-  "türkei paraguay": "0:1",
-  "niederlande schweden": "5:1",
-  "deutschland elfenbeinküste": "2:1",
-  "ecuador curaçao": "0:0",
-  "tunesien japan": "0:4",
-  "spanien saudi-arabien": "4:0",
-  "belgien iran": "0:0",
-  "uruguay kap verde": "2:2",
-  "neuseeland ägypten": "1:3",
-  "argentinien österreich": "2:0",
-  "frankreich irak": "3:0",
-  "norwegen senegal": "3:2",
-  "algerien jordanien": "2:1",
-  "portugal usbekistan": "5:0",
-  "england ghana": "0:0",
-  "kroatien panama": "1:0",
-  "kolumbien dr kongo": "1:0"
-};
 
+// ── RESULTS_INLINE: Alle Ergebnisse aus results.json, Key = Match-ID ──────────
+const RESULTS_INLINE = {
+  1:  "2:0",   // Mexiko – Südafrika
+  2:  "2:1",   // Südkorea – Tschechien
+  3:  "1:1",   // Kanada – Bosnien-Herzegowina
+  4:  "4:1",   // USA – Paraguay
+  5:  "1:1",   // Katar – Schweiz
+  6:  "1:1",   // Brasilien – Marokko
+  7:  "0:1",   // Haiti – Schottland
+  8:  "2:0",   // Australien – Türkei
+  9:  "7:1",   // Deutschland – Curaçao
+  10: "2:2",   // Niederlande – Japan
+  11: "1:0",   // Elfenbeinküste – Ecuador
+  12: "5:1",   // Schweden – Tunesien
+  13: "0:0",   // Spanien – Kap Verde
+  14: "1:1",   // Belgien – Ägypten
+  15: "1:1",   // Saudi-Arabien – Uruguay
+  16: "2:2",   // Iran – Neuseeland
+  17: "3:1",   // Frankreich – Senegal
+  18: "1:4",   // Irak – Norwegen
+  19: "3:0",   // Argentinien – Algerien
+  20: "3:1",   // Österreich – Jordanien
+  21: "1:1",   // Portugal – DR Kongo
+  22: "4:2",   // England – Kroatien
+  23: "1:0",   // Ghana – Panama
+  24: "1:3",   // Usbekistan – Kolumbien
+  25: "1:1",   // Tschechien – Südafrika
+  26: "4:1",   // Schweiz – Bosnien-Herzegowina
+  27: "6:0",   // Kanada – Katar
+  28: "1:0",   // Mexiko – Südkorea
+  29: "2:0",   // USA – Australien
+  30: "0:1",   // Schottland – Marokko
+  31: "3:0",   // Brasilien – Haiti
+  32: "0:1",   // Türkei – Paraguay
+  33: "5:1",   // Niederlande – Schweden
+  34: "2:1",   // Deutschland – Elfenbeinküste
+  35: "0:0",   // Ecuador – Curaçao
+  36: "0:4",   // Tunesien – Japan
+  37: "4:0",   // Spanien – Saudi-Arabien
+  38: "0:0",   // Belgien – Iran
+  39: "2:2",   // Uruguay – Kap Verde
+  40: "1:3",   // Neuseeland – Ägypten
+  41: "2:0",   // Argentinien – Österreich
+  42: "3:0",   // Frankreich – Irak
+  43: "3:2",   // Norwegen – Senegal
+  44: "2:1",   // Algerien – Jordanien  (results.json: jordanien 1 – algerien 2 → umgekehrt)
+  45: "5:0",   // Portugal – Usbekistan
+  46: "0:0",   // England – Ghana
+  47: "1:0",   // Kolumbien – DR Kongo
+  48: "1:0",   // Kroatien – Panama    (results.json: panama 0 – kroatien 1 → umgekehrt)
+};
 let jsonResults = {};
 let overrides  = {};
 let charts = {};
@@ -3308,21 +3309,10 @@ function loadResultsJson(){
 
 function getActual(m){
   if(overrides[m.id]) return overrides[m.id];
-  const key = m.teams;
-  // 1. Manuelle overrides
-  if(jsonResults[key]) return jsonResults[key];
-  // 2. Bidirektionaler Suche in jsonResults
-  for(const k of Object.keys(jsonResults)){
-    const mw=new Set(key.split(' ')),kw=new Set(k.split(' '));
-    if(mw.size===kw.size&&[...mw].every(w=>kw.has(w))) return jsonResults[k];
-  }
-  // 3. RESULTS_INLINE (inline eingebettete Ergebnisse)
-  if(RESULTS_INLINE[key]) return RESULTS_INLINE[key];
-  // 4. Bidirektional in RESULTS_INLINE
-  for(const k of Object.keys(RESULTS_INLINE)){
-    const mw=new Set(key.split(' ')),kw=new Set(k.split(' '));
-    if(mw.size===kw.size&&[...mw].every(w=>kw.has(w))) return RESULTS_INLINE[k];
-  }
+  // Direkt aus RESULTS_INLINE (hardcoded, 100% korrekte Keys)
+  if(RESULTS_INLINE[m.id]) return RESULTS_INLINE[m.id];
+  // Fallback: results.json (falls geladen)
+  if(jsonResults[m.teams]) return jsonResults[m.teams];
   return '';
 }
 
@@ -3566,47 +3556,49 @@ function drawConf(s){
 
 // ─── RENDER TABLE ─────────────────────────────────────────────────────────────
 function renderTable(s){
-  const tbody = document.getElementById('resultsBody');
-  if(!tbody) return;
-  const rows = MATCHES.filter(m=>{
+  const tbody=document.getElementById('resultsBody');
+  if(!tbody)return;
+  const rows=MATCHES.filter(m=>{
+    const actual=getActual(m), status=getStatus(m.pred,actual);
     if(tableFilter==='all') return true;
-    const actual=getActual(m);
-    const status=getStatus(m.pred,actual);
     if(tableFilter==='pending') return !actual;
     if(tableFilter==='exact') return status==='exact';
     if(tableFilter==='tendency') return status==='tendency'||status==='diff';
     if(tableFilter==='wrong') return status==='wrong';
     return true;
   });
-  tbody.innerHTML = rows.map(m=>{
-    const actual=getActual(m);
-    const status=getStatus(m.pred,actual);
-    const ktResult=calcKicktippPoints(m.pred,actual);
-    const pts = ktResult ? ktResult.points : null;
+  tbody.innerHTML=rows.map(m=>{
+    const actual=getActual(m), status=getStatus(m.pred,actual);
+    const kt=calcKicktippPoints(m.pred,actual);
+    const pts=kt?kt.points:null;
     const badgeMap={exact:'exact',diff:'tendency',tendency:'tendency',wrong:'wrong',pending:'pending'};
     const labelMap={exact:'Exakt ✅',diff:'Tordiff. 🎯',tendency:'Tendenz 🟢',wrong:'Falsch ❌',pending:'Offen ⏳'};
-    const badge=badgeMap[status]||'pending';
-    const label=labelMap[status]||'Offen ⏳';
-    const ptsHtml = pts!==null ? `<span class="pts-badge pts-${pts}">${pts}</span>` : `<span class="pts-badge pts-open">–</span>`;
+    const badge=badgeMap[status]||'pending', label=labelMap[status]||'Offen ⏳';
+    const ptsHtml=pts!==null?`<span class="pts-badge pts-${pts}">${pts}</span>`:`<span class="pts-badge pts-open">–</span>`;
+    const sc=getScore(actual);
+    const overActual=sc?(sc.a+sc.b>2.5?'Over ✓':'Under ✓'):'-';
+    const bttsActual=sc?(sc.a>0&&sc.b>0?'Ja ✓':'Nein ✓'):'-';
     return `<tr>
       <td style="color:var(--muted)">${m.id}</td>
       <td><span style="font-size:11px;color:var(--muted)">Gr.${m.gr} · ${m.date}</span><br><b>${m.home} – ${m.away}</b></td>
       <td><b>${m.pred}</b></td>
-      <td>${actual ? `<b>${actual}</b>` : '<span style="color:var(--muted)">–</span>'}</td>
+      <td>${actual?`<b style="color:var(--gold)">${actual}</b>`:'<span style="color:var(--muted)">–</span>'}</td>
       <td><span class="badge ${badge}">${label}</span></td>
       <td>${ptsHtml}</td>
+      <td style="font-size:11px;color:var(--muted)">${actual?(m.over>0?(sc.a+sc.b>2.5)===( m.over>50)?'<span style="color:var(--green)">Over ✓</span>':'<span style="color:var(--red)">Under ✗</span>':'-'):'-'}</td>
+      <td style="font-size:11px;color:var(--muted)">${actual&&sc?(sc.a>0&&sc.b>0?'<span style="color:var(--green)">Ja</span>':'<span style="color:var(--muted)">Nein</span>'):'-'}</td>
     </tr>`;
   }).join('');
 }
 
 // ─── KO TABLE ────────────────────────────────────────────────────────────────
 function renderKoTable(){
-  const wrap = document.getElementById('koTableWrap');
-  if(!wrap) return;
-  wrap.innerHTML = `<table class="rtbl"><thead><tr>
+  const wrap=document.getElementById('koTableWrap');
+  if(!wrap)return;
+  wrap.innerHTML=`<table class="rtbl"><thead><tr>
     <th>Runde</th><th>KI-Prognose A</th><th>KI-Prognose B</th><th>Realität A</th><th>Realität B</th><th>Match?</th>
   </tr></thead><tbody>`+KO_COMPARE.map(k=>{
-    const both = (k.echtA&&k.echtB)?(k.kiA===k.echtA&&k.kiB===k.echtB?'✅':'❌'):'⏳';
+    const both=(k.echtA&&k.echtB)?(k.kiA===k.echtA&&k.kiB===k.echtB?'✅':'❌'):'⏳';
     return `<tr>
       <td style="color:var(--muted);font-size:12px">${k.runde}</td>
       <td><b>${k.kiA}</b></td><td><b>${k.kiB}</b></td>
@@ -3618,29 +3610,23 @@ function renderKoTable(){
 
 // ─── KPI ─────────────────────────────────────────────────────────────────────
 function renderKpis(s){
-  const evaluated = s.total;
-  const pct = evaluated ? Math.round((s.exact+s.diffOnly+s.tendencyOnly)/evaluated*100) : 0;
-  const maxP = evaluated*4;
+  const evaluated=s.total, maxP=evaluated*4;
+  const pct=evaluated?Math.round((s.exact+s.diffOnly+s.tendencyOnly)/evaluated*100):0;
   const set=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
-  set('kpiTotal', MATCHES.length);
-  set('kpiEval', evaluated);
-  set('kpiPending', s.pending);
-  set('kpiExact', s.exact);
-  set('kpiTendency', s.tendencyOnly+s.diffOnly);
-  set('kpiWrong', s.wrong);
-  set('kpiPct', pct+'%');
-  set('kpiPts', s.totalPoints);
-  set('kpiMaxPts', evaluated ? '/ '+maxP+' ('+Math.round(s.totalPoints/(maxP||1)*100)+'%)' : '/ 0');
-  set('kpiOverPct', s.overTotal?Math.round(s.overRight/s.overTotal*100)+'%':'–');
-  set('kpiBttsPct', s.bttsTotal?Math.round(s.bttsRight/s.bttsTotal*100)+'%':'–');
-  const banner = document.getElementById('ptsBanner');
+  set('kpiTotal',MATCHES.length); set('kpiEval',evaluated); set('kpiPending',s.pending);
+  set('kpiExact',s.exact); set('kpiTendency',s.tendencyOnly+s.diffOnly);
+  set('kpiWrong',s.wrong); set('kpiPct',pct+'%'); set('kpiPts',s.totalPoints);
+  set('kpiMaxPts',evaluated?'/ '+maxP+' ('+Math.round(s.totalPoints/(maxP||1)*100)+'%)':'/ 0');
+  set('kpiOverPct',s.overTotal?Math.round(s.overRight/s.overTotal*100)+'%':'–');
+  set('kpiBttsPct',s.bttsTotal?Math.round(s.bttsRight/s.bttsTotal*100)+'%':'–');
+  const banner=document.getElementById('ptsBanner');
   if(banner){
-    const acc = (evaluated&&maxP) ? Math.round(s.totalPoints/maxP*100) : 0;
-    banner.innerHTML = `
+    const acc=(evaluated&&maxP)?Math.round(s.totalPoints/maxP*100):0;
+    banner.innerHTML=`
       <div class="pts-banner-main">${s.totalPoints} <span style="font-size:22px;color:var(--muted)">Pkt</span></div>
       <div class="pts-banner-info">
-        <h3>Kicktipp-Auswertung · ${evaluated} Spiele bewertet</h3>
-        <p>${s.pending} Spiele noch offen · Max: ${maxP} Punkte · Genauigkeit: ${acc}%</p>
+        <h3>Kicktipp-Auswertung · ${evaluated} Spiele bewertet · ${s.pending} offen</h3>
+        <p>Maximum: ${maxP} Punkte · Genauigkeit: ${acc}%</p>
         <div class="pts-breakdown">
           <span class="pts-t">✅ ${s.exact}× Exakt (4Pkt)</span>
           <span class="pts-d">🎯 ${s.diffOnly}× Tordiff. (3Pkt)</span>
@@ -3651,9 +3637,25 @@ function renderKpis(s){
   }
 }
 
+// ─── PUNKTE PRO SPIEL CHART ──────────────────────────────────────────────────
+function drawPointsPerMatch(s){
+  destroyChart('ppm');
+  const el=document.getElementById('chartPointsPerMatch');
+  if(!el)return;
+  const ctx=el.getContext('2d');
+  const colors=s.ptsByMatch.map(p=>p===4?C.gold:p===3?C.blue:p>=2?C.lightgreen:p===0?C.red:C.dark);
+  charts.ppm=new Chart(ctx,{type:'bar',
+    data:{labels:s.ptsByMatch.map((_,i)=>'#'+(i+1)),
+      datasets:[{data:s.ptsByMatch,backgroundColor:colors,borderRadius:6,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:24}},
+      plugins:{...pluginBase,...dlBar(' Pkt','#eef3ff')},
+      scales:{x:{ticks:{color:C.muted,font:{...fontDef,size:10}},grid:{display:false},border:{display:false}},
+        y:{ticks:{color:C.muted,font:fontDef,stepSize:1},grid:{color:C.gridLine},border:{display:false},min:0,max:4.5}}}});
+}
+
 // ─── MAIN REFRESH ─────────────────────────────────────────────────────────────
 function refresh(){
-  const s = computeStats();
+  const s=computeStats();
   renderKpis(s);
   renderTable(s);
   renderKoTable();
@@ -3666,6 +3668,7 @@ function refresh(){
   drawPointsCumul(s);
   drawConfPoints(s);
   drawConf(s);
+  drawPointsPerMatch(s);
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
@@ -3674,26 +3677,26 @@ document.querySelectorAll('.fbtn').forEach(b=>b.addEventListener('click',functio
   document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active'));
   this.classList.add('active');
   tableFilter=this.dataset.filter||'all';
-  const s=computeStats(); renderTable(s);
+  const s=computeStats();renderTable(s);
 }));
 
-// Sofort rendern mit INLINE-Daten
+// ── Sofort rendern mit RESULTS_INLINE ──
 refresh();
 
-// results.json optional nachladen (überschreibt inline)
+// ── results.json optional nachladen (Ergänzung/Überschreibung) ──
 fetch('results.json?nocache='+Date.now())
   .then(r=>r.ok?r.json():Promise.reject())
   .then(data=>{
-    data.forEach(r=>{
-      if(r.status==='finished') jsonResults[r.teams]=r.home+':'+r.away;
-    });
-    const badge=document.getElementById('srcBadge');
-    if(badge){badge.textContent='✅ results.json · '+Object.keys(jsonResults).length+' Ergebnisse live';badge.style.display='inline-block';badge.style.background='rgba(73,210,140,.12)';badge.style.color='var(--green)';}
+    data.forEach(r=>{if(r.status==='finished')jsonResults[r.teams]=r.home+':'+r.away;});
+    const b=document.getElementById('srcBadge');
+    if(b){b.textContent='✅ results.json live · '+Object.keys(jsonResults).length+' Einträge';
+      b.style.display='inline-block';b.style.background='rgba(73,210,140,.12)';b.style.color='var(--green)';}
     refresh();
   })
   .catch(()=>{
-    const badge=document.getElementById('srcBadge');
-    if(badge){badge.textContent='📋 Inline-Ergebnisse ('+Object.keys(RESULTS_INLINE).length+' Spiele)';badge.style.display='inline-block';badge.style.background='rgba(103,164,255,.1)';badge.style.color='var(--blue)';}
+    const b=document.getElementById('srcBadge');
+    if(b){b.textContent='📋 '+Object.keys(RESULTS_INLINE).length+' Inline-Ergebnisse';
+      b.style.display='inline-block';b.style.background='rgba(103,164,255,.1)';b.style.color='var(--blue)';}
   });
 </script>
 </body>
