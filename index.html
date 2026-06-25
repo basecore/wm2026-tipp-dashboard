@@ -2530,7 +2530,7 @@ body{margin:0;font-family:Inter,system-ui,sans-serif;background:linear-gradient(
 
   <!-- STATISTIK -->
   <div class="section" id="tab-statistik">
-    <div id="srcBadge" style="display:none" class="src-badge">⏳ Lade results.json…</div>
+    <div id="srcBadge" class="src-badge">⏳ Lade results.json…</div>
   
     <!-- Kicktipp-Regelübersicht -->
     <div class="rule-box">
@@ -3223,6 +3223,57 @@ const KO_COMPARE = [
   {runde:"Achtelfinale L1-K2", kiA:"England",     kiB:"Kolumbien",    echtA:"", echtB:""},
 ];
 
+const RESULTS_INLINE = {
+  "mexiko südafrika": "2:0",
+  "südkorea tschechien": "2:1",
+  "kanada bosnien-herzegowina": "1:1",
+  "usa paraguay": "4:1",
+  "katar schweiz": "1:1",
+  "brasilien marokko": "1:1",
+  "haiti schottland": "0:1",
+  "australien türkei": "2:0",
+  "deutschland curaçao": "7:1",
+  "niederlande japan": "2:2",
+  "elfenbeinküste ecuador": "1:0",
+  "schweden tunesien": "5:1",
+  "spanien kap verde": "0:0",
+  "belgien ägypten": "1:1",
+  "saudi-arabien uruguay": "1:1",
+  "iran neuseeland": "2:2",
+  "frankreich senegal": "3:1",
+  "irak norwegen": "1:4",
+  "argentinien algerien": "3:0",
+  "österreich jordanien": "3:1",
+  "portugal dr kongo": "1:1",
+  "england kroatien": "4:2",
+  "ghana panama": "1:0",
+  "usbekistan kolumbien": "1:3",
+  "tschechien südafrika": "1:1",
+  "schweiz bosnien-herzegowina": "4:1",
+  "kanada katar": "6:0",
+  "mexiko südkorea": "1:0",
+  "usa australien": "2:0",
+  "schottland marokko": "0:1",
+  "brasilien haiti": "3:0",
+  "türkei paraguay": "0:1",
+  "niederlande schweden": "5:1",
+  "deutschland elfenbeinküste": "2:1",
+  "ecuador curaçao": "0:0",
+  "tunesien japan": "0:4",
+  "spanien saudi-arabien": "4:0",
+  "belgien iran": "0:0",
+  "uruguay kap verde": "2:2",
+  "neuseeland ägypten": "1:3",
+  "argentinien österreich": "2:0",
+  "frankreich irak": "3:0",
+  "norwegen senegal": "3:2",
+  "algerien jordanien": "2:1",
+  "portugal usbekistan": "5:0",
+  "england ghana": "0:0",
+  "kroatien panama": "1:0",
+  "kolumbien dr kongo": "1:0"
+};
+
 let jsonResults = {};
 let overrides  = {};
 let charts = {};
@@ -3258,10 +3309,19 @@ function loadResultsJson(){
 function getActual(m){
   if(overrides[m.id]) return overrides[m.id];
   const key = m.teams;
+  // 1. Manuelle overrides
   if(jsonResults[key]) return jsonResults[key];
+  // 2. Bidirektionaler Suche in jsonResults
   for(const k of Object.keys(jsonResults)){
-    const a=k.split(' '), b=m.teams.split(' ');
-    if((a[0]===b[0]||a[1]===b[0]) && (a[0]===b[1]||a[1]===b[1])) return jsonResults[k];
+    const mw=new Set(key.split(' ')),kw=new Set(k.split(' '));
+    if(mw.size===kw.size&&[...mw].every(w=>kw.has(w))) return jsonResults[k];
+  }
+  // 3. RESULTS_INLINE (inline eingebettete Ergebnisse)
+  if(RESULTS_INLINE[key]) return RESULTS_INLINE[key];
+  // 4. Bidirektional in RESULTS_INLINE
+  for(const k of Object.keys(RESULTS_INLINE)){
+    const mw=new Set(key.split(' ')),kw=new Set(k.split(' '));
+    if(mw.size===kw.size&&[...mw].every(w=>kw.has(w))) return RESULTS_INLINE[k];
   }
   return '';
 }
@@ -3617,27 +3677,23 @@ document.querySelectorAll('.fbtn').forEach(b=>b.addEventListener('click',functio
   const s=computeStats(); renderTable(s);
 }));
 
-// Sofort rendern (OHNE results.json zu warten)
+// Sofort rendern mit INLINE-Daten
 refresh();
 
-// results.json optional nachladen
+// results.json optional nachladen (überschreibt inline)
 fetch('results.json?nocache='+Date.now())
   .then(r=>r.ok?r.json():Promise.reject())
   .then(data=>{
     data.forEach(r=>{
       if(r.status==='finished') jsonResults[r.teams]=r.home+':'+r.away;
-      if(r.phase&&r.phase!=='group'&&r.teamA&&r.teamB){
-        const idx=KO_COMPARE.findIndex(k=>k.runde===r.runde);
-        if(idx>=0){KO_COMPARE[idx].echtA=r.teamA;KO_COMPARE[idx].echtB=r.teamB;}
-      }
     });
     const badge=document.getElementById('srcBadge');
-    if(badge){badge.textContent='✅ results.json · '+Object.keys(jsonResults).length+' Ergebnisse';badge.style.background='rgba(73,210,140,.12)';badge.style.color='var(--green)';}
+    if(badge){badge.textContent='✅ results.json · '+Object.keys(jsonResults).length+' Ergebnisse live';badge.style.display='inline-block';badge.style.background='rgba(73,210,140,.12)';badge.style.color='var(--green)';}
     refresh();
   })
   .catch(()=>{
     const badge=document.getElementById('srcBadge');
-    if(badge){badge.textContent='📋 Nur manuelle Einträge (keine results.json)';badge.style.background='rgba(103,164,255,.1)';badge.style.color='var(--blue)';}
+    if(badge){badge.textContent='📋 Inline-Ergebnisse ('+Object.keys(RESULTS_INLINE).length+' Spiele)';badge.style.display='inline-block';badge.style.background='rgba(103,164,255,.1)';badge.style.color='var(--blue)';}
   });
 </script>
 </body>
