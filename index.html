@@ -3504,7 +3504,128 @@ function drawConf(s){
     options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:28}},
       plugins:{...pluginBase,...dlBar(' Spiele','#eef3ff')},
       scales:{x:{ticks:{color:C.muted,font:fontDef},grid:{display:false},border:{display:false}},
-        y:{ticks:{color:C.muted,font:fontDef,stepSize:1},grid:{color:C.gridLine},bor
+        y:{ticks:{color:C.muted,font:fontDef,stepSize:1},grid:{color:C.gridLine},border:{display:false}}}}});
+}
+
+// ─── RENDER TABLE ─────────────────────────────────────────────────────────────
+function renderTable(s){
+  const tbody = document.getElementById('resultsBody');
+  if(!tbody) return;
+  const rows = MATCHES.filter(m=>{
+    if(tableFilter==='all') return true;
+    const actual=getActual(m);
+    const status=getStatus(m.pred,actual);
+    if(tableFilter==='pending') return !actual;
+    if(tableFilter==='exact') return status==='exact';
+    if(tableFilter==='tendency') return status==='tendency'||status==='diff';
+    if(tableFilter==='wrong') return status==='wrong';
+    return true;
+  });
+  tbody.innerHTML = rows.map(m=>{
+    const actual=getActual(m);
+    const status=getStatus(m.pred,actual);
+    const ktResult=calcKicktippPoints(m.pred,actual);
+    const pts = ktResult ? ktResult.points : null;
+    const badgeMap={exact:'exact',diff:'tendency',tendency:'tendency',wrong:'wrong',pending:'pending'};
+    const labelMap={exact:'Exakt ✅',diff:'Tordiff. 🎯',tendency:'Tendenz 🟢',wrong:'Falsch ❌',pending:'Offen ⏳'};
+    const badge=badgeMap[status]||'pending';
+    const label=labelMap[status]||'Offen ⏳';
+    const ptsHtml = pts!==null ? `<span class="pts-badge pts-${pts}">${pts}</span>` : `<span class="pts-badge pts-open">–</span>`;
+    return `<tr>
+      <td style="color:var(--muted)">${m.id}</td>
+      <td><span style="font-size:11px;color:var(--muted)">Gr.${m.gr}</span><br><b>${m.home} – ${m.away}</b></td>
+      <td><b>${m.pred}</b></td>
+      <td>${actual ? `<b>${actual}</b>` : '<span style="color:var(--muted)">–</span>'}</td>
+      <td><span class="badge ${badge}">${label}</span></td>
+      <td>${ptsHtml}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── KO TABLE ────────────────────────────────────────────────────────────────
+function renderKoTable(){
+  const wrap = document.getElementById('koTableWrap');
+  if(!wrap) return;
+  wrap.innerHTML = `<table class="rtbl"><thead><tr>
+    <th>Runde</th><th>KI-Prognose A</th><th>KI-Prognose B</th><th>Realität A</th><th>Realität B</th><th>Match?</th>
+  </tr></thead><tbody>`+KO_COMPARE.map(k=>{
+    const matchA = k.echtA?k.kiA===k.echtA:null;
+    const matchB = k.echtB?k.kiB===k.echtB:null;
+    const both = (matchA&&matchB)?'✅':(k.echtA||k.echtB)?'❌':'⏳';
+    return `<tr>
+      <td style="color:var(--muted);font-size:12px">${k.runde}</td>
+      <td><b>${k.kiA}</b></td><td><b>${k.kiB}</b></td>
+      <td>${k.echtA||'–'}</td><td>${k.echtB||'–'}</td>
+      <td><span class="badge ${both==='✅'?'match':both==='❌'?'nomatch':'pending'}">${both}</span></td>
+    </tr>`;
+  }).join('')+'</tbody></table>';
+}
+
+// ─── KPI ─────────────────────────────────────────────────────────────────────
+function renderKpis(s){
+  const evaluated = s.total;
+  const pct = evaluated ? Math.round((s.exact+s.diffOnly+s.tendencyOnly)/evaluated*100) : 0;
+  const maxP = evaluated*4;
+
+  const set=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  set('kpiTotal', MATCHES.length);
+  set('kpiEval', evaluated);
+  set('kpiPending', s.pending);
+  set('kpiExact', s.exact);
+  set('kpiTendency', s.tendencyOnly+s.diffOnly);
+  set('kpiWrong', s.wrong);
+  set('kpiPct', pct+'%');
+  set('kpiPts', s.totalPoints);
+  set('kpiMaxPts', evaluated ? '/ '+maxP+' ('+Math.round(s.totalPoints/maxP*100)+'%)' : '/ 0');
+  set('kpiOverPct', s.overTotal?Math.round(s.overRight/s.overTotal*100)+'%':'–');
+  set('kpiBttsPct', s.bttsTotal?Math.round(s.bttsRight/s.bttsTotal*100)+'%':'–');
+
+  // Punkte-Banner
+  const banner = document.getElementById('ptsBanner');
+  if(banner){
+    const acc = evaluated ? Math.round(s.totalPoints/maxP*100) : 0;
+    banner.innerHTML = `
+      <div class="pts-banner-main">${s.totalPoints} <span style="font-size:22px;color:var(--muted)">Pkt</span></div>
+      <div class="pts-banner-info">
+        <h3>Kicktipp-Auswertung (${evaluated} Spiele bewertet)</h3>
+        <p>${s.pending} Spiele noch offen · Maximum: ${evaluated*4} Punkte · Genauigkeit: ${acc}%</p>
+        <div class="pts-breakdown">
+          <span class="pts-t">✅ ${s.exact} Exakt (4Pkt)</span>
+          <span class="pts-d">🎯 ${s.diffOnly} Tordiff. (3Pkt)</span>
+          <span class="pts-e">🟢 ${s.tendencyOnly} Tendenz (2Pkt)</span>
+          <span class="pts-0">❌ ${s.wrong} Falsch (0Pkt)</span>
+        </div>
+      </div>`;
+  }
+}
+
+// ─── MAIN REFRESH ─────────────────────────────────────────────────────────────
+function refresh(){
+  const s = computeStats();
+  renderKpis(s);
+  renderTable(s);
+  renderKoTable();
+  drawDonut(s);
+  drawRatio(s);
+  drawGoals(s);
+  drawOverUnder(s);
+  drawBtts(s);
+  drawPointsDist(s);
+  drawPointsCumul(s);
+  drawConfPoints(s);
+  drawConf(s);
+}
+
+// ─── INIT ──────────────────────────────────────────────────────────────────────
+populateSelect();
+document.querySelectorAll('.fbtn').forEach(b=>b.addEventListener('click',function(){
+  document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active'));
+  this.classList.add('active');
+  tableFilter=this.dataset.filter||'all';
+  const s=computeStats(); renderTable(s);
+}));
+// Sofort rendern mit Inline-Daten (ohne results.json)
+refresh();
 </script>
 </body>
 <script src="ko-inject.js"></script>
