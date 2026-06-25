@@ -1,9 +1,15 @@
-// WM 2026 KO-Runden Injector
-// Basierend auf echten Gruppenständen aus results.json
-// Gruppensieger: A=Mexiko B=Schweiz C=Brasilien D=USA E=Deutschland F=Niederlande G=Ägypten H=Spanien I=Frankreich J=Argentinien K=Kolumbien L=England
+// WM 2026 KO-Runden Injector v2
+// Echte Gruppensieger (Stand 25.06.2026):
+// A1=Mexiko A2=SüdAfrika  B1=Schweiz B2=Kanada  C1=Brasilien C2=Marokko
+// D1=USA D2=Australien  E1=Deutschland E2=Elfenbeinküste  F1=Niederlande F2=Japan
+// G1=Ägypten G2=Iran  H1=Spanien H2=Uruguay  I1=Frankreich I2=Norwegen
+// J1=Argentinien J2=Österreich  K1=Kolumbien K2=Portugal  L1=England L2=Kroatien
+// Beste 4 Drittplatzierte noch offen (Spieltag 3 läuft)
+// WICHTIG: In K.O.-Runden KEIN Unentschieden → immer klarer Sieger.
+// Falls 90' unentschieden → Verlängerung + Elfmeter → Prognose zeigt Elfmeter-Ergebnis (z.B. 4:3 n.E.)
 
 (function() {
-  // === CSS EINFÜGEN ===
+  // === CSS ===
   const style = document.createElement('style');
   style.textContent = `
 .ko-badge{background:color-mix(in srgb,var(--violet) 20%, transparent);color:var(--violet);border:1px solid color-mix(in srgb,var(--violet) 35%, var(--line));font-size:11px;font-weight:800;padding:4px 8px;border-radius:999px}
@@ -25,10 +31,11 @@
 .ko-stat-box{flex:1;min-width:130px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
 .ko-stat-box .val{font-size:22px;font-weight:900;color:var(--gold)}
 .ko-stat-box .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.ko-pen-tag{display:inline-block;padding:2px 7px;border-radius:999px;background:rgba(179,139,255,.18);color:var(--violet);font-size:10px;font-weight:800;margin-left:6px;letter-spacing:.05em}
 `;
   document.head.appendChild(style);
 
-  // === NAV BUTTON EINFÜGEN ===
+  // === NAV BUTTON ===
   const navrow = document.querySelector('.navrow');
   if (navrow) {
     const btn = document.createElement('button');
@@ -38,7 +45,6 @@
     navrow.appendChild(btn);
   }
 
-  // === KO SECTION HTML BAUEN ===
   function cc(c) {
     if (c==='Sehr hoch') return '#49d28c';
     if (c==='Hoch') return '#67a4ff';
@@ -46,18 +52,20 @@
     return '#ff5d73';
   }
 
-  function koCard(idx, datum, zeit, t1, f1, t2, f2, venue, prognose, penPct, penWinner, conf) {
+  // prognose90 = Ergebnis nach 90' (z.B. "1:1")
+  // proNE = Ergebnis nach Verlängerung+Elfmeter wenn nötig (z.B. "4:3 n.E.") oder null
+  // winner = klarer Sieger-Name
+  // penPct = Wahrscheinlichkeit Elfmeter (0 wenn 90' entschieden)
+  function koCard(idx, datum, zeit, t1, f1, t2, f2, venue, prognose90, proNE, winner, penPct, conf) {
     const ccolor = cc(conf);
-    const penInt = parseInt(penPct);
-    const penNote = penInt >= 15 ? `<div class="mc-pen">🎯 Elfmeter-Risiko: ${penPct}% → KI-Sieger: ${penWinner}</div>` : '';
-    let winnerNote;
-    if (prognose.includes('n.E.') || prognose === '❓:❓') {
-      winnerNote = `⚡ Verlängerung/Elfmeter möglich → KI-Sieger: ${penWinner}`;
-    } else {
-      const p = prognose.split(':');
-      winnerNote = (parseInt(p[0]) > parseInt(p[1])) ? `🏆 Prognose-Sieger: ${t1}` : `🏆 Prognose-Sieger: ${t2}`;
-    }
     const mid = `ko${idx}`;
+    const isPen = proNE !== null;
+    const displayScore = isPen ? proNE : prognose90;
+    const scoreLabel = isPen ? 'n. Verl./Elfm.' : 'Prognose (90\')';
+    const penNote = isPen
+      ? `<div class="mc-pen">🎯 90': ${prognose90} → Verlängerung → Elfm.-Risiko: ${penPct}% → KI-Sieger: <strong>${winner}</strong></div>`
+      : `<div class="ko-winner">🏆 KI-Sieger (90'): ${winner}</div>`;
+
     return `<div class="mcard ko-card" data-ko="1" data-teams="${t1.toLowerCase()} ${t2.toLowerCase()}">
   <div class="mc-head">
     <span class="mc-grp ko-badge">${datum} · ${zeit}</span>
@@ -66,16 +74,18 @@
   <div class="mc-body">
     <div class="mc-teams">
       <div class="mc-team"><div class="mc-flag">${f1}</div><div class="mc-name">${t1}</div></div>
-      <div class="mc-score-box"><div class="mc-score">${prognose}</div><div class="mc-label">KI-Prognose</div></div>
+      <div class="mc-score-box">
+        <div class="mc-score">${displayScore}${isPen ? '' : ''}</div>
+        <div class="mc-label">${scoreLabel}</div>
+      </div>
       <div class="mc-team"><div class="mc-flag">${f2}</div><div class="mc-name">${t2}</div></div>
     </div>
-    <div class="ko-winner">${winnerNote}</div>
     ${penNote}
     <div class="mc-metrics">
-      <div class="mc-met"><span>Pen-%</span><b>${penPct}%</b></div>
-      <div class="mc-met"><span>KI-Sieger</span><b>${penWinner}</b></div>
+      <div class="mc-met"><span>90'-Erg.</span><b>${prognose90}</b></div>
+      <div class="mc-met"><span>Elfm.-%</span><b>${isPen ? penPct+'%' : 'N/A'}</b></div>
+      <div class="mc-met"><span>KI-Sieger</span><b>${winner}</b></div>
       <div class="mc-met"><span>Confidence</span><b style="color:${ccolor}">${conf}</b></div>
-      <div class="mc-met"><span>Phase</span><b>K.O.</b></div>
     </div>
     <div id="ko-result-${mid}" class="mc-result" style="display:none">
       <div class="mc-result-header">✅ Offizielles Ergebnis</div>
@@ -87,48 +97,140 @@
 </div>`;
   }
 
-  // === SPIELDATEN ===
+  // ============================================================
+  // SPIELDATEN
+  // Format: [idx, datum, zeit, t1, f1, t2, f2, venue,
+  //          prognose90, proNE (oder null), winner, penPct, conf]
+  //
+  // REGELN:
+  //   - prognose90: immer exaktes 90'-Ergebnis (kann 1:1 / 0:0 sein)
+  //   - proNE: wenn 90' unentschieden → Elfmeter-Ergebnis (z.B. "4:3 n.E.")
+  //            wenn 90' entschieden → null
+  //   - penPct: Wahrscheinlichkeit dass es zu Elfmeter kommt (falls proNE!=null)
+  //             sonst 0
+  //   - winner: immer klar ein Team
+  // ============================================================
+
+  // === SECHZEHNTELFINALE (Round of 32) ===
+  // Basierend auf echten Gruppenständen (Stand 25.06.2026, Spieltag 3 läuft)
+  // A1=Mexiko A2=SüdAfrika B1=Schweiz B2=Kanada C1=Brasilien C2=Marokko
+  // D1=USA D2=Australien E1=Deutschland E2=Elfenbeinküste F1=Niederlande F2=Japan
+  // G1=Ägypten G2=Iran H1=Spanien H2=Uruguay I1=Frankreich I2=Norwegen
+  // J1=Argentinien J2=Österreich K1=Kolumbien K2=Portugal L1=England L2=Kroatien
   const r32 = [
-    [1,'28.06.26','21:00','Mexiko','🇲🇽','Kanada','🇨🇦','SoFi Stadium, Los Angeles (A1 vs B2)','2:1','28','Mexiko','Hoch'],
-    [2,'29.06.26','19:00','Brasilien','🇧🇷','Australien','🇦🇺','AT&T Stadium, Dallas (C1 vs D2)','2:0','18','Brasilien','Sehr hoch'],
-    [3,'29.06.26','22:30','Deutschland','🇩🇪','Japan','🇯🇵','Arrowhead Stadium, Kansas City (E1 vs F2)','2:1','22','Deutschland','Hoch'],
-    [4,'30.06.26','03:00','Ägypten','🇪🇬','Uruguay','🇺🇾','MetLife Stadium, New York (G1 vs H2)','1:2','35','Uruguay','Mittel'],
-    [5,'30.06.26','19:00','Frankreich','🇫🇷','Österreich','🇦🇹',"Levi's Stadium, Santa Clara (I1 vs J2)",'2:0','15','Frankreich','Sehr hoch'],
-    [6,'30.06.26','23:00','Kolumbien','🇨🇴','Ghana','🇬🇭','NRG Stadium, Houston (K1 vs L2)','2:1','22','Kolumbien','Hoch'],
-    [7,'01.07.26','03:00','USA','🇺🇸','Marokko','🇲🇦','Rose Bowl, Los Angeles (D1 vs C2)','2:1','25','USA','Hoch'],
-    [8,'01.07.26','18:00','Niederlande','🇳🇱','Elfenbeinküste','🇨🇮','Hard Rock Stadium, Miami (F1 vs E2)','2:0','18','Niederlande','Hoch'],
-    [9,'01.07.26','22:00','Spanien','🇪🇸','Iran','🇮🇷','Mercedes-Benz Stadium, Atlanta (H1 vs G2)','3:0','12','Spanien','Sehr hoch'],
-    [10,'02.07.26','02:00','England','🏴󠁧󠁢󠁥󠁮󠁧󠁿','Portugal','🇵🇹','BC Place, Vancouver (L1 vs K2)','1:1 n.E.','38','England','Mittel'],
-    [11,'02.07.26','21:00','Argentinien','🇦🇷','Norwegen','🇳🇴','Gillette Stadium, Boston (J1 vs I2)','2:1','22','Argentinien','Hoch'],
-    [12,'03.07.26','01:00','Schweiz','🇨🇭','Südafrika','🇿🇦','Estadio Azteca, Mexico City (B1 vs A2)','2:0','15','Schweiz','Sehr hoch'],
-    [13,'03.07.26','05:00','Bosnien-Herzegowina','🇧🇦','Schweden','🇸🇪','Lumen Field, Seattle (3rd-B vs 3rd-F)','1:2 n.E.','32','Schweden','Mittel'],
-    [14,'03.07.26','20:00','Kroatien','🇭🇷','Südkorea','🇰🇷','BMO Field, Toronto (3rd-L vs 3rd-A)','1:1 n.E.','33','Kroatien','Mittel'],
-    [15,'04.07.26','00:00','Argentinien','🇦🇷','Schweden','🇸🇪','Cotton Bowl, Dallas (J1 vs best-3rd)','2:0','18','Argentinien','Hoch'],
-    [16,'04.07.26','03:30','Kolumbien','🇨🇴','Kroatien','🇭🇷','Allegiant Stadium, Las Vegas (K1 vs 3rd-L)','2:1','22','Kolumbien','Hoch'],
+    // Match 1: A1 Mexiko vs B2 Kanada
+    [1,'28.06.26','21:00','Mexiko','🇲🇽','Kanada','🇨🇦','SoFi Stadium, Los Angeles',
+     '2:1', null, 'Mexiko', 0, 'Hoch'],
+    // Match 2: C1 Brasilien vs D2 Australien
+    [2,'29.06.26','19:00','Brasilien','🇧🇷','Australien','🇦🇺','AT&T Stadium, Dallas',
+     '2:0', null, 'Brasilien', 0, 'Sehr hoch'],
+    // Match 3: E1 Deutschland vs F2 Japan
+    [3,'29.06.26','22:30','Deutschland','🇩🇪','Japan','🇯🇵','Arrowhead Stadium, Kansas City',
+     '2:1', null, 'Deutschland', 0, 'Hoch'],
+    // Match 4: G1 Ägypten vs H2 Uruguay
+    [4,'30.06.26','03:00','Ägypten','🇪🇬','Uruguay','🇺🇾','MetLife Stadium, New York',
+     '1:1', '3:4 n.E.', 'Uruguay', 36, 'Mittel'],
+    // Match 5: I1 Frankreich vs J2 Österreich
+    [5,'30.06.26','19:00','Frankreich','🇫🇷','Österreich','🇦🇹',"Levi's Stadium, Santa Clara",
+     '2:0', null, 'Frankreich', 0, 'Sehr hoch'],
+    // Match 6: K1 Kolumbien vs L2 Kroatien
+    [6,'30.06.26','23:00','Kolumbien','🇨🇴','Kroatien','🇭🇷','NRG Stadium, Houston',
+     '2:1', null, 'Kolumbien', 0, 'Hoch'],
+    // Match 7: D1 USA vs C2 Marokko
+    [7,'01.07.26','03:00','USA','🇺🇸','Marokko','🇲🇦','Rose Bowl, Los Angeles',
+     '2:1', null, 'USA', 0, 'Hoch'],
+    // Match 8: F1 Niederlande vs E2 Elfenbeinküste
+    [8,'01.07.26','18:00','Niederlande','🇳🇱','Elfenbeinküste','🇨🇮','Hard Rock Stadium, Miami',
+     '2:0', null, 'Niederlande', 0, 'Hoch'],
+    // Match 9: H1 Spanien vs G2 Iran
+    [9,'01.07.26','22:00','Spanien','🇪🇸','Iran','🇮🇷','Mercedes-Benz Stadium, Atlanta',
+     '3:0', null, 'Spanien', 0, 'Sehr hoch'],
+    // Match 10: L1 England vs K2 Portugal
+    // Sehr ausgeglichen – 90' Unentschieden möglich → Elfmeter
+    [10,'02.07.26','02:00','England','🏴󠁧󠁢󠁥󠁮󠁧󠁿','Portugal','🇵🇹','BC Place, Vancouver',
+     '1:1', '4:3 n.E.', 'England', 38, 'Mittel'],
+    // Match 11: J1 Argentinien vs I2 Norwegen
+    [11,'02.07.26','21:00','Argentinien','🇦🇷','Norwegen','🇳🇴','Gillette Stadium, Boston',
+     '2:1', null, 'Argentinien', 0, 'Hoch'],
+    // Match 12: B1 Schweiz vs A2 Südafrika
+    [12,'03.07.26','01:00','Schweiz','🇨🇭','Südafrika','🇿🇦','Estadio Azteca, Mexico City',
+     '2:0', null, 'Schweiz', 0, 'Sehr hoch'],
+    // Match 13-16: Beste Drittplatzierte (4 Slots) – werden nach Spieltag 3 fixiert
+    // Vorläufige Prognosen auf Basis wahrscheinlichster Best-3rd-Teams
+    // Slot 1: best 3rd (wahrscheinlich Bosnien oder Senegal) vs F1-Bereich-Gegner
+    [13,'03.07.26','05:00','Bosnien','🇧🇦','Schweden','🇸🇪','Lumen Field, Seattle',
+     '1:1', '5:4 n.E.', 'Schweden', 32, 'Mittel'],
+    [14,'03.07.26','20:00','Kroatien','🇭🇷','Südkorea','🇰🇷','BMO Field, Toronto',
+     '1:1', '4:3 n.E.', 'Kroatien', 33, 'Mittel'],
+    [15,'04.07.26','00:00','Argentinien','🇦🇷','Schweden','🇸🇪','Cotton Bowl, Dallas',
+     '2:0', null, 'Argentinien', 0, 'Hoch'],
+    [16,'04.07.26','03:30','Kolumbien','🇨🇴','Senegal','🇸🇳','Allegiant Stadium, Las Vegas',
+     '2:1', null, 'Kolumbien', 0, 'Hoch'],
   ];
+
+  // === ACHTELFINALE ===
   const af = [
-    [101,'04.07.26','19:00','Mexiko','🇲🇽','Uruguay','🇺🇾','MetLife Stadium, New York/NJ','2:1','25','Mexiko','Hoch'],
-    [102,'04.07.26','23:00','Frankreich','🇫🇷','Kolumbien','🇨🇴','Rose Bowl, Los Angeles','2:1','20','Frankreich','Hoch'],
-    [103,'05.07.26','22:00','Deutschland','🇩🇪','USA','🇺🇸','AT&T Stadium, Dallas','1:1 n.E.','35','Deutschland','Mittel'],
-    [104,'06.07.26','02:00','Brasilien','🇧🇷','Niederlande','🇳🇱','Hard Rock Stadium, Miami','2:1','28','Brasilien','Mittel'],
-    [105,'06.07.26','21:00','Spanien','🇪🇸','England','🏴󠁧󠁢󠁥󠁮󠁧󠁿','SoFi Stadium, Los Angeles','1:1 n.E.','38','Spanien','Mittel'],
-    [106,'07.07.26','02:00','Argentinien','🇦🇷','Schweiz','🇨🇭',"Levi's Stadium, Santa Clara",'2:0','18','Argentinien','Hoch'],
-    [107,'07.07.26','18:00','Norwegen','🇳🇴','Schweden','🇸🇪','Arrowhead Stadium, Kansas City','1:2','22','Schweden','Mittel'],
-    [108,'07.07.26','22:00','Mexiko','🇲🇽','Frankreich','🇫🇷','NRG Stadium, Houston','0:2','15','Frankreich','Sehr hoch'],
+    // Mexiko vs Uruguay (Sieger R32-4)
+    [101,'04.07.26','19:00','Mexiko','🇲🇽','Uruguay','🇺🇾','MetLife Stadium, New York/NJ',
+     '2:1', null, 'Mexiko', 0, 'Hoch'],
+    // Frankreich vs Kolumbien
+    [102,'04.07.26','23:00','Frankreich','🇫🇷','Kolumbien','🇨🇴','Rose Bowl, Los Angeles',
+     '2:1', null, 'Frankreich', 0, 'Hoch'],
+    // Deutschland vs USA
+    [103,'05.07.26','22:00','Deutschland','🇩🇪','USA','🇺🇸','AT&T Stadium, Dallas',
+     '1:1', '5:4 n.E.', 'Deutschland', 35, 'Mittel'],
+    // Brasilien vs Niederlande
+    [104,'06.07.26','02:00','Brasilien','🇧🇷','Niederlande','🇳🇱','Hard Rock Stadium, Miami',
+     '2:1', null, 'Brasilien', 0, 'Mittel'],
+    // Spanien vs England
+    [105,'06.07.26','21:00','Spanien','🇪🇸','England','🏴󠁧󠁢󠁥󠁮󠁧󠁿','SoFi Stadium, Los Angeles',
+     '1:1', '5:4 n.E.', 'Spanien', 38, 'Mittel'],
+    // Argentinien vs Schweiz
+    [106,'07.07.26','02:00','Argentinien','🇦🇷','Schweiz','🇨🇭',"Levi's Stadium, Santa Clara",
+     '2:0', null, 'Argentinien', 0, 'Hoch'],
+    // Norwegen vs Schweden (Nordderby)
+    [107,'07.07.26','18:00','Norwegen','🇳🇴','Schweden','🇸🇪','Arrowhead Stadium, Kansas City',
+     '1:2', null, 'Schweden', 0, 'Mittel'],
+    // Mexiko vs Frankreich – Mexiko überraschend ausgeschieden?
+    // KI-Prognose: Frankreich dominiert
+    [108,'07.07.26','22:00','Frankreich','🇫🇷','Mexiko','🇲🇽','NRG Stadium, Houston',
+     '2:0', null, 'Frankreich', 0, 'Sehr hoch'],
   ];
+
+  // === VIERTELFINALE ===
   const vf = [
-    [201,'09.07.26','22:00','Frankreich','🇫🇷','Deutschland','🇩🇪','MetLife Stadium, New York/NJ','2:1','28','Frankreich','Hoch'],
-    [202,'10.07.26','21:00','Brasilien','🇧🇷','Spanien','🇪🇸','Rose Bowl, Los Angeles','1:1 n.E.','40','Brasilien','Mittel'],
-    [203,'11.07.26','23:00','Argentinien','🇦🇷','Schweden','🇸🇪','AT&T Stadium, Dallas','2:0','18','Argentinien','Hoch'],
-    [204,'12.07.26','03:00','Frankreich','🇫🇷','Argentinien','🇦🇷','SoFi Stadium, Los Angeles','1:2','35','Argentinien','Mittel'],
+    // Frankreich vs Deutschland
+    [201,'09.07.26','22:00','Frankreich','🇫🇷','Deutschland','🇩🇪','MetLife Stadium, New York/NJ',
+     '2:1', null, 'Frankreich', 0, 'Hoch'],
+    // Brasilien vs Spanien
+    [202,'10.07.26','21:00','Brasilien','🇧🇷','Spanien','🇪🇸','Rose Bowl, Los Angeles',
+     '1:1', '5:3 n.E.', 'Brasilien', 40, 'Mittel'],
+    // Argentinien vs Schweden
+    [203,'11.07.26','23:00','Argentinien','🇦🇷','Schweden','🇸🇪','AT&T Stadium, Dallas',
+     '2:0', null, 'Argentinien', 0, 'Hoch'],
+    // Kolumbien vs Frankreich (zweites VF)
+    [204,'12.07.26','03:00','Frankreich','🇫🇷','Kolumbien','🇨🇴','SoFi Stadium, Los Angeles',
+     '1:0', null, 'Frankreich', 0, 'Mittel'],
   ];
+
+  // === HALBFINALE ===
   const hf = [
-    [301,'14.07.26','21:00','Frankreich','🇫🇷','Argentinien','🇦🇷','MetLife Stadium, New York/NJ','1:2','35','Argentinien','Hoch'],
-    [302,'15.07.26','21:00','Brasilien','🇧🇷','Deutschland','🇩🇪','Rose Bowl, Los Angeles','2:1','28','Brasilien','Hoch'],
+    // Frankreich vs Argentinien
+    [301,'14.07.26','21:00','Frankreich','🇫🇷','Argentinien','🇦🇷','MetLife Stadium, New York/NJ',
+     '1:2', null, 'Argentinien', 0, 'Hoch'],
+    // Brasilien vs Deutschland
+    [302,'15.07.26','21:00','Brasilien','🇧🇷','Deutschland','🇩🇪','Rose Bowl, Los Angeles',
+     '2:1', null, 'Brasilien', 0, 'Hoch'],
   ];
+
+  // === FINALE + SPIEL UM PLATZ 3 ===
   const fin = [
-    [401,'19.07.26','21:00','Argentinien','🇦🇷','Brasilien','🇧🇷','MetLife Stadium, New York/NJ 🏆 FINALE','1:0 n.E.','42','Argentinien','Mittel'],
-    [402,'18.07.26','23:00','Frankreich','🇫🇷','Deutschland','🇩🇪','Rose Bowl, Los Angeles (3. Platz)','2:1','25','Frankreich','Hoch'],
+    // Spiel um Platz 3: Frankreich vs Deutschland
+    [402,'18.07.26','23:00','Frankreich','🇫🇷','Deutschland','🇩🇪','Rose Bowl, Los Angeles',
+     '2:1', null, 'Frankreich', 0, 'Hoch'],
+    // FINALE: Argentinien vs Brasilien
+    [401,'19.07.26','21:00','Argentinien','🇦🇷','Brasilien','🇧🇷','MetLife Stadium, New York/NJ 🏆',
+     '1:1', '4:3 n.E.', 'Argentinien', 42, 'Mittel'],
   ];
 
   function renderSection(matches) {
@@ -139,9 +241,9 @@
 <div class="section" id="tab-ko">
   <div class="ko-intro">
     <strong>⚡ KO-Runden Prognosen – WM 2026</strong><br>
-    Basierend auf echten Gruppenständen (results.json). Kein Unentschieden in K.O. → bei Gleichstand Elfmeter.<br>
-    <strong>Gruppensieger:</strong> A=🇲🇽Mexiko · B=🇨🇭Schweiz · C=🇧🇷Brasilien · D=🇺🇸USA · E=🇩🇪Deutschland · F=🇳🇱Niederlande · G=🇪🇮GÄgypten · H=🇪🇸Spanien · I=🇫🇷Frankreich · J=🇦🇷Argentinien · K=🇨🇴Kolumbien · L=🏴󠁧󠁢󠁥󠁮󠁧󠁿England<br>
-    <strong>Beste 4 Drittplatzierte (KO):</strong> 🇧🇦Bosnien (4 Pts) · 🇸🇪Schweden (3 Pts) · 🇭🇷Kroatien (3 Pts) · 🇰🇷Südkorea (3 Pts)
+    In K.O.-Runden gibt es <strong>kein Unentschieden</strong>. Bei Gleichstand nach 90' → Verlängerung → Elfmeterschießen.<br>
+    Die KI-Prognose zeigt: 90'-Ergebnis + falls Elfer nötig das Elfmeter-Ergebnis (z.B. 4:3 n.E.).<br>
+    <strong>Gruppensieger (Stand 25.06.26):</strong> A=🇲🇽Mexiko · B=🇨🇭Schweiz · C=🇧🇷Brasilien · D=🇺🇸USA · E=🇩🇪Deutschland · F=🇳🇱Niederlande · G=🇪🇬Ägypten · H=🇪🇸Spanien · I=🇫🇷Frankreich · J=🇦🇷Argentinien · K=🇨🇴Kolumbien · L=🏴󠁧󠁢󠁥󠁮󠁧󠁿England
   </div>
   <div class="ko-stat-row">
     <div class="ko-stat-box"><div class="val" id="ko-total">30</div><div class="lbl">KO-Spiele gesamt</div></div>
@@ -152,7 +254,7 @@
 
   <div class="ko-section-header">
     <div class="ko-round-badge r32">⚽ Sechzehntelfinale</div>
-    <span class="ko-round-info">28.06. – 04.07.2026 · 16 Spiele · Live-Ergebnisse via results.json</span>
+    <span class="ko-round-info">28.06. – 04.07.2026 · 16 Spiele</span>
   </div>
   <div class="mcards">${renderSection(r32)}</div>
 
@@ -181,7 +283,7 @@
   <div class="mcards">${renderSection(fin)}</div>
 </div>`;
 
-  // Section in DOM einfügen (vor .footer oder am Ende von .wrap)
+  // Section einfügen
   const wrap = document.querySelector('.wrap');
   if (wrap) {
     const tmp = document.createElement('div');
@@ -210,10 +312,10 @@
         if (!scoreEl) return;
         resDiv.style.display = 'block';
         scoreEl.textContent = r.home + ' : ' + r.away;
-        const predEl = card.querySelector('.mc-score');
-        if (predEl && deltaEl) {
-          const predRaw = predEl.textContent.trim().replace(' n.E.', '');
-          const parts = predRaw.split(':');
+        const pred90El = card.querySelector('.mc-met b');
+        if (pred90El && deltaEl) {
+          const pred90 = pred90El.textContent.trim();
+          const parts = pred90.split(':');
           if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
             const ph = parseInt(parts[0]), pa = parseInt(parts[1]);
             const ah = r.home, aa = r.away;
@@ -222,7 +324,7 @@
             let cls = 'bad', txt = '❌ Fehl-Tipp (+0 Pkt)', pts = 0;
             if (ph === ah && pa === aa) {
               cls = 'good'; txt = '✅ Exakt-Treffer! (+4 Pkt)'; pts = 4; koExact++; koCorrect++;
-            } else if (predWin === realWin && predWin !== 'D') {
+            } else if (predWin === realWin) {
               if (Math.abs(ph - pa) === Math.abs(ah - aa)) {
                 cls = 'good'; txt = '✅ Tendenz+Diff korrekt (+3 Pkt)'; pts = 3; koCorrect++;
               } else {
@@ -241,7 +343,7 @@
     el('ko-pts', koPts);
   }
 
-  // Globale loadResults Funktion erweitern
+  // loadResults erweitern
   const _origLoad = window.loadResults;
   window.loadResults = async function() {
     if (_origLoad) await _origLoad();
