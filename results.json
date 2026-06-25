@@ -301,14 +301,26 @@
   },
   {
     "teams": "marokko haiti",
-    "home": 2,
+    "home": 4,
     "away": 2,
-    "status": "live"
+    "status": "finished"
   },
   {
     "teams": "schottland brasilien",
     "home": 0,
-    "away": 2,
+    "away": 3,
+    "status": "finished"
+  },
+  {
+    "teams": "tschechien mexiko",
+    "home": 0,
+    "away": 0,
+    "status": "live"
+  },
+  {
+    "teams": "südafrika südkorea",
+    "home": 0,
+    "away": 0,
     "status": "live"
   }
 ]
