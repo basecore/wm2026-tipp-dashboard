@@ -349,14 +349,14 @@
   },
   {
     "teams": "türkei usa",
-    "home": 2,
+    "home": 3,
     "away": 2,
-    "status": "live"
+    "status": "finished"
   },
   {
     "teams": "paraguay australien",
     "home": 0,
     "away": 0,
-    "status": "live"
+    "status": "finished"
   }
 ]
