@@ -337,12 +337,24 @@
   },
   {
     "teams": "tunesien niederlande",
-    "home": 0,
+    "home": 1,
+    "away": 3,
+    "status": "finished"
+  },
+  {
+    "teams": "japan schweden",
+    "home": 1,
+    "away": 1,
+    "status": "finished"
+  },
+  {
+    "teams": "türkei usa",
+    "home": 2,
     "away": 2,
     "status": "live"
   },
   {
-    "teams": "japan schweden",
+    "teams": "paraguay australien",
     "home": 0,
     "away": 0,
     "status": "live"
