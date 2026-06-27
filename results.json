@@ -375,12 +375,24 @@
     "teams": "uruguay spanien",
     "home": 0,
     "away": 1,
-    "status": "live"
+    "status": "finished"
   },
   {
     "teams": "cape verde islands saudi-arabien",
     "home": 0,
     "away": 0,
-    "status": "live"
+    "status": "finished"
+  },
+  {
+    "teams": "neuseeland belgien",
+    "home": 1,
+    "away": 5,
+    "status": "finished"
+  },
+  {
+    "teams": "ägypten iran",
+    "home": 1,
+    "away": 1,
+    "status": "finished"
   }
 ]
