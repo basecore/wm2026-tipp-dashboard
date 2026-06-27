@@ -370,5 +370,17 @@
     "home": 5,
     "away": 0,
     "status": "finished"
+  },
+  {
+    "teams": "uruguay spanien",
+    "home": 0,
+    "away": 1,
+    "status": "live"
+  },
+  {
+    "teams": "cape verde islands saudi-arabien",
+    "home": 0,
+    "away": 0,
+    "status": "live"
   }
 ]
