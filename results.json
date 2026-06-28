@@ -396,6 +396,18 @@
     "status": "finished"
   },
   {
+    "teams": "panama england",
+    "home": 0,
+    "away": 2,
+    "status": "finished"
+  },
+  {
+    "teams": "kroatien ghana",
+    "home": 2,
+    "away": 1,
+    "status": "finished"
+  },
+  {
     "teams": "kolumbien portugal",
     "home": 0,
     "away": 0,
