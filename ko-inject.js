@@ -665,7 +665,7 @@
         '<td style="font-weight:700"><span class="'+(rT2!=='?'?(t2ok?'team-ok':'team-wrong'):'team-open')+'">'+c.predT2+'</span></td>'+
         '<td style="font-weight:700;color:var(--muted)">'+(rT1!=='?'?rT1:'<em>noch offen</em>')+'</td>'+
         '<td style="font-family:monospace;font-size:11px">'+(status==='finished'?'✅ Gespielt':'⏳ '+status)+'</td>'+
-        '<td><span style="font-size:11px;font-weight:800;color:'+(rT1==='?'?'var(--muted)':(t1ok&&t2ok?'var(--green)':'var(--red)'))+'">'+(rT1==='?'?'Offen':(t1ok&&t2ok?'✅ Korrekt':'❌ Abweichung'))+'</span></td>'+
+        '<td><span style="font-size:11px;font-weight:800;color:'+(rT1==='?'?'var(--muted)':(t1ok&&t2ok?'var(--green)':'var(--red)'))+'">'+( rT1==='?'?'Offen':(t1ok&&t2ok?'✅ Korrekt':'❌ Abweichung'))+'</span></td>'+
         '</tr>';
     }).join('');
 
