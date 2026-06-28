@@ -1,5 +1,5 @@
 // ============================================================
-// ko-inject.js  v4  –  WM 2026 KO-Runden Injector
+// ko-inject.js  v5  –  WM 2026 KO-Runden Injector
 // Öffnet einen neuen Tab "⚡ K.O.-Runden" mit identischer
 // Kartenstruktur wie die Gruppenphase (Spielplan-Tab).
 //
@@ -14,11 +14,11 @@
 //  3) Statistik-Tab wird um KO-Daten erweitert.
 //  4) Prognose-Vergleich (KI-Teams vs. echte Teams) wird
 //     im Statistik-Tab als eigene Sektion dargestellt.
+//  5) KO-Punkte werden in die Gesamt-Score-Anzeige integriert.
 //
-// v4 Update 28.06.2026:
-//  Gruppensieger/-zweite aktualisiert nach Spieltag 3:
-//  G1=Belgien (war Ägypten), G2=Ägypten (war Iran),
-//  H2=Cape Verde (war Uruguay)
+// v5 Update 28.06.2026:
+//  Gesamt-Score-Integration: KO + Gruppenphase + Bonus
+//  werden nun im Statistik-Tab als Gesamtsumme angezeigt.
 // ============================================================
 
 (function () {
@@ -67,6 +67,17 @@
 .team-ok{color:var(--green);font-weight:700}
 .team-wrong{color:var(--red);font-weight:700}
 .team-open{color:var(--muted)}
+/* Gesamt-Score Block */
+.gesamt-score-block{background:linear-gradient(135deg,rgba(243,184,59,.12),rgba(179,139,255,.08));border:2px solid color-mix(in srgb,var(--gold) 40%,var(--line));border-radius:18px;padding:20px 24px;margin-bottom:28px}
+.gesamt-score-block h2{font-size:15px;font-weight:900;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px}
+.gesamt-score-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.gesamt-kpi{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center}
+.gesamt-kpi .gval{font-size:26px;font-weight:900}
+.gesamt-kpi .glbl{font-size:11px;color:var(--muted);text-transform:uppercase;margin-top:4px;letter-spacing:.06em}
+.gesamt-total-row{margin-top:14px;padding:14px 20px;background:rgba(243,184,59,.1);border:1px solid color-mix(in srgb,var(--gold) 30%,var(--line));border-radius:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.gesamt-total-row .gt-label{font-size:13px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.gesamt-total-row .gt-value{font-size:36px;font-weight:900;color:var(--gold)}
+.gesamt-total-row .gt-avg{font-size:13px;color:var(--muted)}
 `;
   var styleEl = document.createElement('style');
   styleEl.textContent = css;
@@ -545,6 +556,69 @@
 
     buildKOStatistik(koCorrect,koExact,koPts,koPlayed,koTeamHits);
     buildKOCompare(data);
+    // Gesamt-Score nach allem anderen berechnen
+    setTimeout(function(){ updateGesamtScore(koPts); }, 100);
+  }
+
+  // ── GESAMT-SCORE INTEGRATION ─────────────────────────────
+  function updateGesamtScore(koPts) {
+    var statSection = document.getElementById('tab-statistik');
+    if(!statSection) return;
+
+    // Gruppenphase-Punkte aus dem bestehenden Statistik-Tab lesen
+    // Die index.html rendert diese in data-pts Attribute auf .mcard Elementen
+    var gruppenPts = 0;
+    var gruppenExact = 0;
+    var gruppenTendenz = 0;
+    var gruppenPlayed = 0;
+    document.querySelectorAll('.mcard:not(.ko-card)').forEach(function(card){
+      var pts = parseInt(card.getAttribute('data-pts')||'-1');
+      var cat = card.getAttribute('data-cat')||'';
+      if(pts < 0) return; // noch kein Ergebnis
+      gruppenPlayed++;
+      gruppenPts += pts;
+      if(cat==='exact') gruppenExact++;
+      if(cat==='exact'||cat==='tordiff'||cat==='tendenz') gruppenTendenz++;
+    });
+
+    // Bonus-Punkte aus bonus-inject.js falls vorhanden
+    var bonusPts = 0;
+    var bonusEl = document.getElementById('bonus-pts-total');
+    if(bonusEl) bonusPts = parseInt(bonusEl.textContent)||0;
+
+    var gesamtPts = gruppenPts + koPts + bonusPts;
+    var gesamtPlayed = gruppenPlayed; // KO wird separat gezählt
+    var avgGruppen = gruppenPlayed > 0 ? (gruppenPts/gruppenPlayed).toFixed(2) : '–';
+
+    // Bestehenden Block entfernen falls vorhanden
+    var existing = document.getElementById('gesamt-score-block');
+    if(existing) existing.remove();
+
+    function kpi(lbl, val, col) {
+      return '<div class="gesamt-kpi"><div class="gval" style="color:'+col+'">'+val+'</div><div class="glbl">'+lbl+'</div></div>';
+    }
+
+    var block = document.createElement('div');
+    block.id = 'gesamt-score-block';
+    block.className = 'gesamt-score-block';
+    block.innerHTML =
+      '<h2>🏆 Gesamt-Score KI-Dashboard</h2>'+
+      '<div class="gesamt-score-grid">'+
+        kpi('Gruppenphase Pkt', gruppenPts, 'var(--blue)')+
+        kpi('KO-Runden Pkt', koPts, 'var(--violet)')+
+        kpi('Bonus Pkt', bonusPts, 'var(--green)')+
+        kpi('∅ Pkt/Spiel (Gruppe)', avgGruppen, 'var(--muted)')+
+        kpi('✅ Exakt (Gruppe)', gruppenExact, 'var(--green)')+
+        kpi('Tendenz (Gruppe)', gruppenTendenz, 'var(--gold)')+
+      '</div>'+
+      '<div class="gesamt-total-row">'+
+        '<span class="gt-label">🎯 Gesamtpunkte</span>'+
+        '<span class="gt-value">'+gesamtPts+'</span>'+
+        '<span class="gt-avg">Gruppe: '+gruppenPts+' · KO: '+koPts+' · Bonus: '+bonusPts+'</span>'+
+      '</div>';
+
+    // Ganz oben im Statistik-Tab einfügen
+    statSection.insertBefore(block, statSection.firstChild);
   }
 
   // ── STATISTIK-TAB INTEGRATION ────────────────────────────
@@ -665,7 +739,7 @@
         '<td style="font-weight:700"><span class="'+(rT2!=='?'?(t2ok?'team-ok':'team-wrong'):'team-open')+'">'+c.predT2+'</span></td>'+
         '<td style="font-weight:700;color:var(--muted)">'+(rT1!=='?'?rT1:'<em>noch offen</em>')+'</td>'+
         '<td style="font-family:monospace;font-size:11px">'+(status==='finished'?'✅ Gespielt':'⏳ '+status)+'</td>'+
-        '<td><span style="font-size:11px;font-weight:800;color:'+(rT1==='?'?'var(--muted)':(t1ok&&t2ok?'var(--green)':'var(--red)'))+'">'+( rT1==='?'?'Offen':(t1ok&&t2ok?'✅ Korrekt':'❌ Abweichung'))+'</span></td>'+
+        '<td><span style="font-size:11px;font-weight:800;color:'+(rT1==='?'?'var(--muted)':(t1ok&&t2ok?'var(--green)':'var(--red)'))+'">'+(rT1==='?'?'Offen':(t1ok&&t2ok?'✅ Korrekt':'❌ Abweichung'))+'</span></td>'+
         '</tr>';
     }).join('');
 
@@ -673,38 +747,20 @@
     block.id='ko-compare-block';
     block.className='ko-compare-section';
     block.innerHTML=
-      '<h3>📊 KO-Prognose-Vergleich: KI-Teams vs. Echte Teams</h3>'+
-      '<p style="font-size:12px;color:var(--muted);margin-bottom:12px">'+
-        '🟢 Grün = Teams stimmen überein · 🔴 Rot = Abweichung → 0 Punkte · Grau = noch nicht gespielt</p>'+
+      '<h3>🔍 KI-Prognose vs. tatsächliche Teams (KO-Runden)</h3>'+
+      '<p style="font-size:12px;color:var(--muted);margin-bottom:12px">Grün = Team wie prognostiziert · Rot = anderes Team qualifiziert · Grau = noch nicht gespielt</p>'+
       '<div style="overflow-x:auto"><table class="ko-ctbl">'+
         '<thead><tr>'+
-          '<th>Runde</th><th>KI: Team 1</th><th>KI: Prognose</th><th>KI: Team 2</th>'+
-          '<th>Echt: Teams</th><th>Status</th><th>Übereinstimmung</th>'+
+          '<th>Runde</th><th>KI-Team 1</th><th>Prognose</th><th>KI-Team 2</th>'+
+          '<th>Tatsächlich</th><th>Status</th><th>Übereinstimmung</th>'+
         '</tr></thead>'+
         '<tbody>'+rows+'</tbody>'+
       '</table></div>';
+
     statSection.appendChild(block);
   }
 
-  // ── loadResults ERWEITERN ────────────────────────────────
-  var _origLoad=window.loadResults;
-  window.loadResults=function(){
-    var p=(_origLoad?_origLoad():Promise.resolve());
-    Promise.resolve(p).then(function(){
-      fetch('./results.json?v='+Date.now())
-        .then(function(r){ return r.json(); })
-        .then(function(data){ loadKOResults(data); })
-        .catch(function(e){ console.warn('[ko-inject] KO Results load failed',e); });
-    });
-  };
-
-  // Initial laden
-  if(document.readyState==='complete'||document.readyState==='interactive'){
-    setTimeout(function(){ window.loadResults&&window.loadResults(); },900);
-  } else {
-    document.addEventListener('DOMContentLoaded',function(){
-      setTimeout(function(){ window.loadResults&&window.loadResults(); },900);
-    });
-  }
+  // ── EXPORT für index.html ─────────────────────────────────
+  window.loadKOResults = loadKOResults;
 
 })();
