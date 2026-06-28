@@ -396,18 +396,6 @@
     "status": "finished"
   },
   {
-    "teams": "panama england",
-    "home": 0,
-    "away": 2,
-    "status": "finished"
-  },
-  {
-    "teams": "kroatien ghana",
-    "home": 2,
-    "away": 1,
-    "status": "finished"
-  },
-  {
     "teams": "kolumbien portugal",
     "home": 0,
     "away": 0,
@@ -417,6 +405,18 @@
     "teams": "dr kongo usbekistan",
     "home": 3,
     "away": 1,
-    "status": "live"
+    "status": "finished"
+  },
+  {
+    "teams": "jordanien argentinien",
+    "home": 1,
+    "away": 3,
+    "status": "finished"
+  },
+  {
+    "teams": "algerien österreich",
+    "home": 3,
+    "away": 3,
+    "status": "finished"
   }
 ]
