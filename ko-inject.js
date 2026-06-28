@@ -1,11 +1,11 @@
 // ============================================================
-// ko-inject.js  v3  –  WM 2026 KO-Runden Injector
+// ko-inject.js  v4  –  WM 2026 KO-Runden Injector
 // Öffnet einen neuen Tab "⚡ K.O.-Runden" mit identischer
 // Kartenstruktur wie die Gruppenphase (Spielplan-Tab).
 //
 // KERNREGELN:
 //  1) Keine Unentschieden in K.O. → Prognose zeigt IMMER
-//     den Sieger. Bei voraussichtlichem 90’-Remis wird das
+//     den Sieger. Bei voraussichtlichem 90'-Remis wird das
 //     Elfmeter-Ergebnis (z.B. "4:3 n.E.") angezeigt.
 //  2) Punkte werden NUR vergeben, wenn die tatsächlich
 //     spielenden Teams mit der KI-Prognose übereinstimmen.
@@ -14,6 +14,11 @@
 //  3) Statistik-Tab wird um KO-Daten erweitert.
 //  4) Prognose-Vergleich (KI-Teams vs. echte Teams) wird
 //     im Statistik-Tab als eigene Sektion dargestellt.
+//
+// v4 Update 28.06.2026:
+//  Gruppensieger/-zweite aktualisiert nach Spieltag 3:
+//  G1=Belgien (war Ägypten), G2=Ägypten (war Iran),
+//  H2=Cape Verde (war Uruguay)
 // ============================================================
 
 (function () {
@@ -67,7 +72,7 @@
   styleEl.textContent = css;
   document.head.appendChild(styleEl);
 
-  // ── ALIAS-NORM (identisch mit results_patch.js) ──────────
+  // ── ALIAS-NORM ───────────────────────────────────────────
   var ALIAS = {
     'elfenbeink.':'elfenbeinküste','elfenbeinküste':'elfenbeinküste',
     'bosnien-h.':'bosnien-herzegowina','bosnien-herzegowina':'bosnien-herzegowina',
@@ -105,31 +110,7 @@
     return '#ff5d73';
   }
 
-  // ── KARTEN-BUILDER (identisch mit Gruppenphase-Struktur) ─
-  // Parameter:
-  //   idx        – eindeutige ID
-  //   datum      – "28.06.26"
-  //   zeit       – "21:00"
-  //   t1/f1      – Team1 Name/Flag
-  //   t2/f2      – Team2 Name/Flag
-  //   rank1/rank2– FIFA-Ranking
-  //   venue      – Stadt · Stadion
-  //   hoehe      – Höhe in m (z.B. 71)
-  //   temp       – Temperatur in °C
-  //   prog90     – 90'-Prognose (kann 1:1 sein)
-  //   proNE      – Elfmeter-Ergebnis (z.B. "4:3 n.E.") oder null
-  //   winner     – klarer KI-Sieger
-  //   winPct     – Siegwahrscheinlichkeit Team1 in %
-  //   drawPct    – Unentschieden-% (nach 90')
-  //   losePct    – Siegwahrscheinlichkeit Team2 in %
-  //   xg1/xg2    – expected Goals
-  //   over25     – Over 2.5 %
-  //   btts       – BTTS Ja %
-  //   penPct     – Elfmeter-Risiko %
-  //   top3scores – [["1:0","9.8%"],["2:1","9.7%"],["1:1","11.1%"]]
-  //   note       – Höhe/Wetter-Hinweis
-  //   conf       – Confidence-Stufe
-  //   runde      – Runden-Label für Statistik-Tab
+  // ── KARTEN-BUILDER ───────────────────────────────────────
   function koCard(idx,datum,zeit,t1,f1,t2,f2,rank1,rank2,venue,hoehe,temp,
                   prog90,proNE,winner,winPct,drawPct,losePct,
                   xg1,xg2,over25,btts,penPct,top3scores,note,conf,runde){
@@ -139,7 +120,6 @@
     var scoreLabel=isPen?'n. Verl./Elfm.':"Prognose (90')";
     var ccolor=cc(conf);
     var dataTeams=norm(t1)+'|'+norm(t2);
-    // data-prog: die 90'-Prognose (für Scoring-Logik)
     var dataProg=prog90;
 
     var hoeheTxt=hoehe>0?hoehe+'m':'<10m';
@@ -155,10 +135,6 @@
     var scPills=top3scores.map(function(s){
       return '<span class="sc-pill">'+s[0]+' ('+s[1]+')</span>';
     }).join('');
-
-    var teamWinner1=(!isPen&&parseInt(prog90.split(':')[0])>parseInt(prog90.split(':')[1]))||(isPen&&winner===t1);
-    var winner1Pct=teamWinner1?winPct:losePct;
-    var winner2Pct=teamWinner1?losePct:winPct;
 
     return `<div class="mcard ko-card"
   data-group="ko" data-ko="1" data-round="${runde}"
@@ -224,21 +200,19 @@
   }
 
   // ── SPIELDATEN ───────────────────────────────────────────
-  // Format: [idx, datum, zeit, t1, f1, t2, f2, rank1, rank2,
-  //          venue, hoehe, temp, prog90, proNE, winner,
-  //          winPct, drawPct, losePct, xg1, xg2,
-  //          over25, btts, penPct,
-  //          [[score,pct],[score,pct],[score,pct]],
-  //          note, conf, runde]
-  //
-  // Gruppensieger Stand 25.06.2026:
-  // A1=Mexiko A2=Südafrika  B1=Schweiz B2=Kanada
-  // C1=Brasilien C2=Marokko  D1=USA D2=Australien
-  // E1=Deutschland E2=Elfenbeinküste  F1=Niederlande F2=Japan
-  // G1=Ägypten G2=Iran  H1=Spanien H2=Uruguay
-  // I1=Frankreich I2=Norwegen  J1=Argentinien J2=Österreich
-  // K1=Kolumbien K2=Portugal  L1=England L2=Kroatien
-  // Beste Drittplatzierte (noch offen, Spieltag 3)
+  // Gruppensieger Stand 28.06.2026 (nach Spieltag 3, alle Gruppen abgeschlossen):
+  // A1=Mexiko      A2=Südafrika
+  // B1=Schweiz     B2=Kanada
+  // C1=Brasilien   C2=Marokko
+  // D1=USA         D2=Australien
+  // E1=Deutschland E2=Elfenbeinküste
+  // F1=Niederlande F2=Japan
+  // G1=Belgien     G2=Ägypten      ← geändert (war Ägypten/Iran)
+  // H1=Spanien     H2=Cape Verde   ← geändert (war Uruguay)
+  // I1=Frankreich  I2=Norwegen
+  // J1=Argentinien J2=Österreich
+  // K1=Kolumbien   K2=Portugal
+  // L1=England     L2=Kroatien
 
   var R32 = [
     // 1: A1 Mexiko vs B2 Kanada
@@ -256,11 +230,11 @@
      'Arrowhead Stadium, Kansas City',271,29,'2:1',null,'Deutschland',
      48,23,29,1.88,1.66,66.0,66.5,0,
      [['1:1','9.7%'],['2:1','9.2%'],['1:2','7.8%']],'','Hoch','A Sechzehntelfinale'],
-    // 4: G1 Ägypten vs H2 Uruguay  – sehr ausgeglichen → Elfmeter
-    [4,'30.06.26','03:00','Ägypten','🇪🇬','Uruguay','🇺🇾',34,19,
-     'MetLife Stadium, New York/NJ',2,26,'1:1','3:4 n.E.','Uruguay',
-     33,26,41,1.41,1.62,55.0,56.0,36,
-     [['1:1','11.5%'],['0:1','9.2%'],['1:2','8.8%']],'','Mittel','A Sechzehntelfinale'],
+    // 4: G1 Belgien vs H2 Cape Verde  ← AKTUALISIERT
+    [4,'30.06.26','03:00','Belgien','🇧🇪','Cape Verde','🇨🇻',7,75,
+     'MetLife Stadium, New York/NJ',2,26,'3:0',null,'Belgien',
+     68,18,14,2.40,0.95,65.0,58.0,0,
+     [['2:0','14.2%'],['3:0','12.5%'],['3:1','9.0%']],'','Sehr hoch','A Sechzehntelfinale'],
     // 5: I1 Frankreich vs J2 Österreich
     [5,'30.06.26','19:00','Frankreich','🇫🇷','Österreich','🇦🇹',2,26,
      "Levi's Stadium, Santa Clara",7,24,'2:0',null,'Frankreich',
@@ -281,11 +255,11 @@
      'Hard Rock Stadium, Miami',4,30,'2:0',null,'Niederlande',
      53,23,24,1.96,1.32,60.5,58.0,0,
      [['2:0','11.8%'],['1:0','10.2%'],['2:1','9.6%']],'🌡️ 30°C → xG −5%','Hoch','A Sechzehntelfinale'],
-    // 9: H1 Spanien vs G2 Iran
-    [9,'01.07.26','22:00','Spanien','🇪🇸','Iran','🇮🇷',2,22,
+    // 9: H1 Spanien vs G2 Ägypten  ← AKTUALISIERT (war Iran)
+    [9,'01.07.26','22:00','Spanien','🇪🇸','Ägypten','🇪🇬',2,34,
      'Mercedes-Benz Stadium, Atlanta',320,29,'3:0',null,'Spanien',
-     68,18,14,2.45,0.98,72.0,65.0,0,
-     [['2:0','14.5%'],['3:0','12.0%'],['3:1','8.5%']],'','Sehr hoch','A Sechzehntelfinale'],
+     65,20,15,2.35,1.05,70.0,62.0,0,
+     [['2:0','14.0%'],['3:0','11.5%'],['3:1','8.8%']],'','Sehr hoch','A Sechzehntelfinale'],
     // 10: L1 England vs K2 Portugal – ELFMETER
     [10,'02.07.26','02:00','England','🏴󠁧󠁢󠁥󠁮󠁧󠁿','Portugal','🇵🇹',5,8,
      'BC Place, Vancouver',4,19,'1:1','4:3 n.E.','England',
@@ -301,22 +275,22 @@
      'Estadio Azteca, Mexico City',2300,31,'2:0',null,'Schweiz',
      51,24,25,1.72,1.12,56.0,54.0,0,
      [['2:0','11.5%'],['1:0','9.8%'],['2:1','9.0%']],'⛰️ 2300m → Heim xG +0.20 · 🌡️ 31°C','Sehr hoch','A Sechzehntelfinale'],
-    // 13: Best-3rd (Bosnien) vs Best-3rd (Schweden)
+    // 13: Beste Drittplatzierte
     [13,'03.07.26','05:00','Bosnien','🇧🇦','Schweden','🇸🇪',55,26,
      'Lumen Field, Seattle',0,18,'1:1','5:4 n.E.','Schweden',
      38,25,37,1.52,1.55,57.0,58.0,32,
      [['1:1','11.2%'],['1:0','8.8%'],['0:1','8.6%']],'','Mittel','A Sechzehntelfinale'],
-    // 14: Best-3rd (Kroatien) vs Best-3rd (Südkorea)
+    // 14: Beste Drittplatzierte
     [14,'03.07.26','20:00','Kroatien','🇭🇷','Südkorea','🇰🇷',10,22,
      'BMO Field, Toronto',76,22,'1:1','4:3 n.E.','Kroatien',
      40,24,36,1.62,1.55,60.0,61.0,33,
      [['1:1','11.0%'],['1:0','9.0%'],['0:1','8.5%']],'','Mittel','A Sechzehntelfinale'],
-    // 15: J1 Argentinien vs Best-3rd
+    // 15: Beste Drittplatzierte
     [15,'04.07.26','00:00','Argentinien','🇦🇷','Schweden','🇸🇪',1,26,
      'Cotton Bowl, Dallas',145,32,'2:0',null,'Argentinien',
      55,22,23,2.05,1.35,62.0,59.0,0,
      [['2:0','12.8%'],['1:0','10.5%'],['2:1','9.8%']],'🌡️ 32°C → xG −10%','Hoch','A Sechzehntelfinale'],
-    // 16: K1 Kolumbien vs Best-3rd (Senegal)
+    // 16: Beste Drittplatzierte
     [16,'04.07.26','03:30','Kolumbien','🇨🇴','Senegal','🇸🇳',9,41,
      'Allegiant Stadium, Las Vegas',621,34,'2:1',null,'Kolumbien',
      48,23,29,1.84,1.48,62.0,62.5,0,
@@ -324,11 +298,11 @@
   ];
 
   var AF = [
-    // 101: Mexiko vs Uruguay (Sieger R32-4 Uruguay)
-    [101,'04.07.26','19:00','Mexiko','🇲🇽','Uruguay','🇺🇾',16,19,
-     'MetLife Stadium, New York/NJ',2,26,'2:1',null,'Mexiko',
-     50,23,27,1.88,1.62,64.0,64.5,0,
-     [['2:1','10.3%'],['1:0','8.8%'],['1:1','10.0%']],'','Hoch','B Achtelfinale'],
+    // 101: Mexiko vs Cape Verde (Sieger R32-4)  ← AKTUALISIERT (war Uruguay)
+    [101,'04.07.26','19:00','Mexiko','🇲🇽','Cape Verde','🇨🇻',16,75,
+     'MetLife Stadium, New York/NJ',2,26,'3:0',null,'Mexiko',
+     68,18,14,2.30,0.92,64.0,57.0,0,
+     [['2:0','14.5%'],['3:0','12.0%'],['3:1','9.2%']],'','Sehr hoch','B Achtelfinale'],
     // 102: Frankreich vs Kolumbien
     [102,'04.07.26','23:00','Frankreich','🇫🇷','Kolumbien','🇨🇴',2,9,
      'Rose Bowl, Los Angeles',88,27,'2:1',null,'Frankreich',
@@ -359,11 +333,11 @@
      'Arrowhead Stadium, Kansas City',271,29,'1:2',null,'Schweden',
      36,25,39,1.55,1.68,60.0,62.0,0,
      [['1:1','10.8%'],['1:2','9.2%'],['0:1','8.8%']],'','Mittel','B Achtelfinale'],
-    // 108: Frankreich vs Mexiko
-    [108,'07.07.26','22:00','Frankreich','🇫🇷','Mexiko','🇲🇽',2,16,
-     'NRG Stadium, Houston',15,33,'2:0',null,'Frankreich',
-     58,22,20,2.18,1.22,63.0,58.0,0,
-     [['2:0','13.5%'],['1:0','10.8%'],['2:1','10.0%']],'🌡️ 33°C → xG beider Teams −10%','Sehr hoch','B Achtelfinale'],
+    // 108: Belgien vs Frankreich  ← AKTUALISIERT (war Frankreich vs Mexiko)
+    [108,'07.07.26','22:00','Belgien','🇧🇪','Frankreich','🇫🇷',7,2,
+     'NRG Stadium, Houston',15,33,'1:2',null,'Frankreich',
+     32,24,44,1.55,1.98,65.0,66.0,0,
+     [['1:2','10.8%'],['0:1','9.5%'],['1:1','9.2%']],'🌡️ 33°C → xG beider Teams −10%','Hoch','B Achtelfinale'],
   ];
 
   var VF = [
@@ -382,11 +356,11 @@
      'AT&T Stadium, Dallas',145,32,'2:0',null,'Argentinien',
      55,22,23,2.12,1.38,63.0,60.0,0,
      [['2:0','13.0%'],['1:0','10.5%'],['2:1','9.8%']],'🌡️ 32°C → xG −10%','Hoch','C Viertelfinale'],
-    // 204: Frankreich vs Kolumbien 2. Runde VF
-    [204,'12.07.26','03:00','Frankreich','🇫🇷','Kolumbien','🇨🇴',2,9,
-     'SoFi Stadium, Los Angeles',71,27,'1:0',null,'Frankreich',
-     50,24,26,1.88,1.58,60.0,60.5,0,
-     [['1:0','11.2%'],['1:1','9.8%'],['2:1','9.0%']],'','Mittel','C Viertelfinale'],
+    // 204: Mexiko vs Kolumbien  ← AKTUALISIERT (war Frankreich vs Kolumbien)
+    [204,'12.07.26','03:00','Mexiko','🇲🇽','Kolumbien','🇨🇴',16,9,
+     'SoFi Stadium, Los Angeles',71,27,'1:2',null,'Kolumbien',
+     38,24,38,1.62,1.75,63.0,63.5,0,
+     [['1:2','10.5%'],['1:1','9.8%'],['0:1','9.2%']],'','Mittel','C Viertelfinale'],
   ];
 
   var HF = [
@@ -395,19 +369,19 @@
      'MetLife Stadium, New York/NJ',2,27,'1:2',null,'Argentinien',
      38,24,38,1.82,1.92,67.0,68.0,0,
      [['1:1','10.5%'],['1:2','9.8%'],['0:1','8.8%']],'','Hoch','D Halbfinale'],
-    // 302: Brasilien vs Deutschland
-    [302,'15.07.26','21:00','Brasilien','🇧🇷','Deutschland','🇩🇪',5,13,
+    // 302: Brasilien vs Kolumbien  ← AKTUALISIERT (war Brasilien vs Deutschland)
+    [302,'15.07.26','21:00','Brasilien','🇧🇷','Kolumbien','🇨🇴',5,9,
      'Rose Bowl, Los Angeles',88,27,'2:1',null,'Brasilien',
-     48,23,29,1.98,1.75,67.0,67.5,0,
-     [['2:1','10.5%'],['1:1','9.8%'],['1:0','8.8%']],'','Hoch','D Halbfinale'],
+     48,24,28,1.98,1.68,65.0,65.5,0,
+     [['2:1','10.8%'],['1:1','9.5%'],['1:0','9.0%']],'','Hoch','D Halbfinale'],
   ];
 
   var FIN = [
-    // 402: Spiel um Platz 3: Frankreich vs Deutschland
-    [402,'18.07.26','23:00','Frankreich','🇫🇷','Deutschland','🇩🇪',2,13,
+    // 402: Spiel um Platz 3: Frankreich vs Kolumbien  ← AKTUALISIERT (war vs Deutschland)
+    [402,'18.07.26','23:00','Frankreich','🇫🇷','Kolumbien','🇨🇴',2,9,
      'Rose Bowl, Los Angeles',88,27,'2:1',null,'Frankreich',
-     48,24,28,1.98,1.78,67.0,67.5,0,
-     [['2:1','10.5%'],['1:0','9.8%'],['1:1','9.5%']],'','Hoch','E Spiel um Platz 3'],
+     48,24,28,1.92,1.72,65.0,65.5,0,
+     [['2:1','10.5%'],['1:0','9.8%'],['1:1','9.2%']],'','Hoch','E Spiel um Platz 3'],
     // 401: FINALE: Argentinien vs Brasilien – ELFMETER
     [401,'19.07.26','21:00','Argentinien','🇦🇷','Brasilien','🇧🇷',1,5,
      'MetLife Stadium, New York/NJ 🏆',2,27,'1:1','4:3 n.E.','Argentinien',
@@ -426,7 +400,7 @@
     <strong>⚡ KO-Runden Prognosen – WM 2026</strong><br>
     Alle KO-Prognosen basieren auf der gleichen Analyse-Logik wie die Gruppenphase (xG-Modell, Poisson, Höhe, Temperatur, Taktik, Kader).<br>
     <strong>Punkte:</strong> Nur wenn die tatsächlich spielenden Teams mit der KI-Prognose übereinstimmen. Bei Teamabweichung → 0 Punkte, Ergebnis trotzdem sichtbar.<br>
-    <strong>Gruppensieger (Stand 25.06.26):</strong> A=🇲🇽Mexiko · B=🇨🇭Schweiz · C=🇧🇷Brasilien · D=🇺🇸USA · E=🇩🇪Deutschland · F=🇳🇱Niederlande · G=🇪🇬Ägypten · H=🇪🇸Spanien · I=🇫🇷Frankreich · J=🇦🇷Argentinien · K=🇨🇴Kolumbien · L=🏴󠁧󠁢󠁥󠁮󠁧󠁿England
+    <strong>Gruppensieger (Stand 28.06.26):</strong> A=🇲🇽Mexiko · B=🇨🇭Schweiz · C=🇧🇷Brasilien · D=🇺🇸USA · E=🇩🇪Deutschland · F=🇳🇱Niederlande · G=🇧🇪Belgien · H=🇪🇸Spanien · I=🇫🇷Frankreich · J=🇦🇷Argentinien · K=🇨🇴Kolumbien · L=🏴󠁧󠁢󠁥󠁮󠁧󠁿England
   </div>
   <div class="ko-stat-row">
     <div class="ko-stat-box"><div class="val" id="ko-total">30</div><div class="lbl">KO-Spiele gesamt</div></div>
@@ -488,15 +462,6 @@
   }
 
   // ── ERGEBNISSE AUSWERTEN ──────────────────────────────────
-  // Lädt results.json, matched KO-Karten.
-  // WICHTIG: Punkte nur wenn data-teams mit echten Teams übereinstimmt.
-  // results.json-Einträge für KO-Spiele benötigen:
-  //   { "id":"ko-28.06.26-MexicoCanada", "teams":"mexiko kanada",
-  //     "home":2, "away":1, "status":"finished",
-  //     "real_team1":"mexiko", "real_team2":"kanada" }
-  // Falls real_team1/real_team2 vorhanden und != data-winner-Prognose:
-  //   → mismatch = true → 0 Punkte
-
   function loadKOResults(data) {
     var koCards = document.querySelectorAll('.ko-card');
     var koCorrect=0, koExact=0, koPts=0, koPlayed=0, koTeamHits=0;
@@ -512,7 +477,6 @@
         if(parts.length<2) return;
         var cA=norm(parts[0]), cB=norm(parts[1]);
 
-        // Team-Match: beide Teams müssen in r.teams vorkommen
         var rParts = rTeams.split(' ');
         var matched = false;
         for(var i=1;i<rParts.length;i++){
@@ -523,9 +487,6 @@
         }
         if(!matched) return;
 
-        // Ergebnis anzeigen
-        var mid = 'ko'+card.getAttribute('data-ko-idx');
-        // Fallback: ID aus mcard ID oder data-ko-idx
         var resultDiv = card.querySelector('[id^="ko-result-"]');
         if(!resultDiv) return;
         var scoreEl = resultDiv.querySelector('[id^="ko-score-"]');
@@ -535,17 +496,13 @@
         if(scoreEl) scoreEl.textContent = eA+':'+eB;
         koPlayed++;
 
-        // Teams-Übereinstimmung prüfen
-        // real_team1/real_team2 optional in results.json
         var predT1=norm(parts[0]), predT2=norm(parts[1]);
         var realT1=r.real_team1?norm(r.real_team1):predT1;
         var realT2=r.real_team2?norm(r.real_team2):predT2;
         var teamMatch = (realT1===predT1&&realT2===predT2)||(realT1===predT2&&realT2===predT1);
 
         if(!teamMatch){
-          // Teams stimmen nicht überein → 0 Punkte, grau markieren
           card.classList.add('team-mismatch');
-          // Mismatch-Hinweis einfügen
           if(!card.querySelector('.ko-mismatch-note')){
             var mn=document.createElement('div');
             mn.className='ko-mismatch-note';
@@ -560,7 +517,6 @@
         }
 
         koTeamHits++;
-        // 90'-Prognose für Scoring nehmen
         var prog90=card.getAttribute('data-prog90')||card.getAttribute('data-prog')||'';
         var pm=prog90.match(/(\d+):(\d+)/);
         if(!pm){ card.setAttribute('data-result',eA+':'+eB); return; }
@@ -570,35 +526,29 @@
         if(kt.cat==='exact'||kt.cat==='tordiff'||kt.cat==='tendenz') koCorrect++;
         if(kt.cat==='exact') koExact++;
 
-        var bKey=kt.cat;
-        var b=BADGE[bKey]||BADGE.miss;
-        if(deltaEl) deltaEl.innerHTML='<span class="mc-delta '+(kt.pts>=3?'good':(kt.pts===2?'mid':'bad'))+'">'+(BADGE[bKey]||BADGE.miss).lbl+'</span>';
+        var b=BADGE[kt.cat]||BADGE.miss;
+        if(deltaEl) deltaEl.innerHTML='<span class="mc-delta '+(kt.pts>=3?'good':(kt.pts===2?'mid':'bad'))+'">'+b.lbl+'</span>';
         card.setAttribute('data-result',eA+':'+eB);
         card.setAttribute('data-cat',kt.cat);
         card.setAttribute('data-pts',String(kt.pts));
 
-        // mc-score auf echtes Ergebnis aktualisieren
         var scoreBox=card.querySelector('.mc-score');
         if(scoreBox){ scoreBox.textContent=eA+':'+eB; scoreBox.style.color='var(--text)'; scoreBox.style.fontSize='20px'; }
       });
     });
 
-    // KO-Mini-Statistik aktualisieren
     function setEl(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; }
     setEl('ko-correct',koCorrect);
     setEl('ko-exact',koExact);
     setEl('ko-pts',koPts);
     setEl('ko-team-hits',koTeamHits+'/'+koPlayed);
 
-    // Statistik-Tab-Integration
     buildKOStatistik(koCorrect,koExact,koPts,koPlayed,koTeamHits);
-    // Prognose-Vergleich aktualisieren
     buildKOCompare(data);
   }
 
   // ── STATISTIK-TAB INTEGRATION ────────────────────────────
   function buildKOStatistik(koCorrect,koExact,koPts,koPlayed,koTeamHits){
-    // Existierende Statistik-KPIs um KO-Block erweitern
     var statSection = document.getElementById('tab-statistik');
     if(!statSection) return;
 
@@ -630,7 +580,6 @@
         kpi('Teams korrekt',koTeamHits+'/'+koPlayed,'var(--violet)')+
       '</div>';
 
-    // KO-Ergebnis-Zeilen in Statistik-Tabelle einfügen
     var tbody = document.getElementById('stat-tbody');
     if(tbody){
       var koRows = [];
@@ -646,7 +595,6 @@
         var names=card.querySelectorAll('.mc-name');
         var tA=names[0]?names[0].textContent.trim():'?';
         var tB=names[1]?names[1].textContent.trim():'?';
-        var isMismatch=(cat==='mismatch');
         var runde=card.getAttribute('data-round')||'KO';
         var dA=eA-pA,dB=eB-pB;
         var b=BADGE[cat]||BADGE.miss;
@@ -661,13 +609,12 @@
           '<td style="color:'+(dB===0?'var(--green)':'var(--red)')+';font-weight:700">'+(dB===0?'✓':(dB>0?'+'+dB:String(dB)))+'</td>'+
           '<td><span style="background:'+b.bg+';color:'+b.col+';padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700">'+b.lbl+'</span></td>'+
           '<td style="text-align:center;font-size:17px;font-weight:900;color:'+b.col+'">'+pts+'</td>'+
-          '<td style="text-align:center;color:'+(isTend?'var(--green)':'var(--muted)')+'">'+(isTend?'✓':'–')+'</td>'+
-          '<td style="text-align:center;color:'+(isTD?'var(--blue)':'var(--muted)')+'">'+(isTD?'✓':'–')+'</td>'+
-          '<td style="text-align:center;color:'+(isExact?'var(--green)':'var(--muted)')+'">'+(isExact?'✓':'–')+'</td>'+
+          '<td style="text-align:center;color:'+(isTend?'var(--green)':'var(--muted)')+'">'+( isTend?'✓':'–')+'</td>'+
+          '<td style="text-align:center;color:'+(isTD?'var(--blue)':'var(--muted)')+'">'+( isTD?'✓':'–')+'</td>'+
+          '<td style="text-align:center;color:'+(isExact?'var(--green)':'var(--muted)')+'">'+( isExact?'✓':'–')+'</td>'+
           '</tr>');
       });
       if(koRows.length){
-        // Trennzeile
         var sep='<tr><td colspan="10" style="padding:6px 8px;font-size:11px;color:var(--violet);font-weight:800;background:rgba(179,139,255,.06);letter-spacing:.08em">⚡ KO-RUNDEN</td></tr>';
         tbody.insertAdjacentHTML('beforeend', sep+koRows.join(''));
       }
@@ -677,14 +624,12 @@
   }
 
   // ── KO PROGNOSE-VERGLEICH ─────────────────────────────────
-  // Zeigt im Statistik-Tab: KI-Prognose-Teams vs. echte Teams
   function buildKOCompare(data){
     var statSection=document.getElementById('tab-statistik');
     if(!statSection) return;
     var existing=document.getElementById('ko-compare-block');
     if(existing) existing.remove();
 
-    // Alle KO-Karten sammeln
     var allCards=[];
     document.querySelectorAll('.ko-card').forEach(function(card){
       var dt=(card.getAttribute('data-teams')||'').split('|');
@@ -698,7 +643,6 @@
       allCards.push({predT1:tA,predT2:tB,prog90:prog90,proNE:proNE,winner:winner,runde:runde,dt:dt});
     });
 
-    // Echte Teams aus results.json extrahieren
     var realMap={};
     data.forEach(function(r){
       if(r.ko_slot) realMap[r.ko_slot]={real_team1:r.real_team1||'',real_team2:r.real_team2||'',status:r.status};
@@ -721,8 +665,7 @@
         '<td style="font-weight:700"><span class="'+(rT2!=='?'?(t2ok?'team-ok':'team-wrong'):'team-open')+'">'+c.predT2+'</span></td>'+
         '<td style="font-weight:700;color:var(--muted)">'+(rT1!=='?'?rT1:'<em>noch offen</em>')+'</td>'+
         '<td style="font-family:monospace;font-size:11px">'+(status==='finished'?'✅ Gespielt':'⏳ '+status)+'</td>'+
-        '<td><span style="font-size:11px;font-weight:800;color:'+(rT1==='?'?'var(--muted)':(t1ok&&t2ok?'var(--green)':'var(--red)'))+'">'+
-          (rT1==='?'?'Offen':(t1ok&&t2ok?'✅ Korrekt':'❌ Abweichung'))+'</span></td>'+
+        '<td><span style="font-size:11px;font-weight:800;color:'+(rT1==='?'?'var(--muted)':(t1ok&&t2ok?'var(--green)':'var(--red)'))+'">'+(rT1==='?'?'Offen':(t1ok&&t2ok?'✅ Korrekt':'❌ Abweichung'))+'</span></td>'+
         '</tr>';
     }).join('');
 
