@@ -442,5 +442,11 @@
     "home": 2,
     "away": 1,
     "status": "finished"
+  },
+  {
+    "teams": "deutschland paraguay",
+    "home": 1,
+    "away": 1,
+    "status": "live"
   }
 ]
