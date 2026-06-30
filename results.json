@@ -454,5 +454,17 @@
     "home": 3,
     "away": 4,
     "status": "finished"
+  },
+  {
+    "teams": "elfenbeinküste norwegen",
+    "home": 1,
+    "away": 2,
+    "status": "finished"
+  },
+  {
+    "teams": "frankreich schweden",
+    "home": 0,
+    "away": 0,
+    "status": "live"
   }
 ]
