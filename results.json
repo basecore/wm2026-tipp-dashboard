@@ -445,8 +445,14 @@
   },
   {
     "teams": "deutschland paraguay",
-    "home": 2,
-    "away": 1,
+    "home": 4,
+    "away": 5,
+    "status": "finished"
+  },
+  {
+    "teams": "niederlande marokko",
+    "home": 0,
+    "away": 0,
     "status": "live"
   }
 ]
