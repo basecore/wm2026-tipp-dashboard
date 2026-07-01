@@ -466,5 +466,11 @@
     "home": 3,
     "away": 0,
     "status": "finished"
+  },
+  {
+    "teams": "mexiko ecuador",
+    "home": 2,
+    "away": 0,
+    "status": "finished"
   }
 ]
