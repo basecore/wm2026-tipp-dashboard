@@ -483,6 +483,12 @@
     "teams": "belgien senegal",
     "home": 3,
     "away": 2,
+    "status": "finished"
+  },
+  {
+    "teams": "usa bosnien-herzegowina",
+    "home": 0,
+    "away": 0,
     "status": "live"
   }
 ]
