@@ -511,8 +511,8 @@
   },
   {
     "teams": "australien ägypten",
-    "home": 1,
-    "away": 1,
-    "status": "live"
+    "home": 3,
+    "away": 5,
+    "status": "finished"
   }
 ]
