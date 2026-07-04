@@ -536,7 +536,7 @@
   {
     "teams": "paraguay frankreich",
     "home": 0,
-    "away": 0,
-    "status": "live"
+    "away": 1,
+    "status": "finished"
   }
 ]
