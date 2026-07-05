@@ -541,8 +541,8 @@
   },
   {
     "teams": "brasilien norwegen",
-    "home": 0,
-    "away": 0,
-    "status": "live"
+    "home": 1,
+    "away": 2,
+    "status": "finished"
   }
 ]
