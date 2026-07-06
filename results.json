@@ -550,5 +550,11 @@
     "home": 2,
     "away": 3,
     "status": "finished"
+  },
+  {
+    "teams": "portugal spanien",
+    "home": 0,
+    "away": 0,
+    "status": "live"
   }
 ]
