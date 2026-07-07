@@ -568,5 +568,11 @@
     "home": 3,
     "away": 2,
     "status": "finished"
+  },
+  {
+    "teams": "schweiz kolumbien",
+    "home": 0,
+    "away": 0,
+    "status": "live"
   }
 ]
