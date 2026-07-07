@@ -562,5 +562,11 @@
     "home": 1,
     "away": 4,
     "status": "finished"
+  },
+  {
+    "teams": "argentinien ägypten",
+    "home": 3,
+    "away": 2,
+    "status": "finished"
   }
 ]
