@@ -556,5 +556,11 @@
     "home": 0,
     "away": 1,
     "status": "finished"
+  },
+  {
+    "teams": "usa belgien",
+    "home": 1,
+    "away": 4,
+    "status": "finished"
   }
 ]
