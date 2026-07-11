@@ -583,8 +583,8 @@
   },
   {
     "teams": "norwegen england",
-    "home": 2,
-    "away": 1,
-    "status": "live"
+    "home": 1,
+    "away": 2,
+    "status": "finished"
   }
 ]
