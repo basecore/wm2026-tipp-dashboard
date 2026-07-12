@@ -546,6 +546,12 @@
     "status": "finished"
   },
   {
+    "teams": "mexiko england",
+    "home": 2,
+    "away": 3,
+    "status": "finished"
+  },
+  {
     "teams": "portugal spanien",
     "home": 0,
     "away": 1,
@@ -589,8 +595,8 @@
   },
   {
     "teams": "argentinien schweiz",
-    "home": 2,
+    "home": 3,
     "away": 1,
-    "status": "live"
+    "status": "finished"
   }
 ]
