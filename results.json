@@ -616,11 +616,5 @@
     "home": 4,
     "away": 6,
     "status": "finished"
-  },
-  {
-    "teams": "spanien argentinien",
-    "home": 0,
-    "away": 0,
-    "status": "live"
   }
 ]
